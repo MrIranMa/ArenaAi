@@ -1,6 +1,6 @@
 // ============================================================
-//  Technamooz AI — KV store, isolation and admin auth tests
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — KV store, isolation and admin auth tests
+//  Author: ArenaAi
 // ============================================================
 
 import { test } from 'node:test';
