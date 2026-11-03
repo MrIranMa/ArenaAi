@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/banner.svg" alt="Technamooz AI — تکناموز" width="100%"/>
+<img src="./assets/banner.svg" alt="ArenaAi AI — آرنا ای‌آی" width="100%"/>
 
 <br/>
 
@@ -46,7 +46,7 @@
 [![Telegram](https://img.shields.io/badge/تلگرام-@technamooz-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/technamooz)
 [![Instagram](https://img.shields.io/badge/اینستاگرام-technamooz-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/technamooz)
 
-[![YouTube](https://img.shields.io/badge/یوتیوب-Technamooz-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/@technamooz)
+[![YouTube](https://img.shields.io/badge/یوتیوب-ArenaAi-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/@technamooz)
 [![GitHub](https://img.shields.io/badge/گیت‌هاب-technamooz-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/technamooz)
 [![X](https://img.shields.io/badge/توییتر-@technamooz-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/technamooz)
 
@@ -64,7 +64,7 @@
 
 <div align="center">
 
-[![آموزش کامل Technamooz AI](https://img.youtube.com/vi/aMuzdPpteUA/maxresdefault.jpg)](https://youtu.be/aMuzdPpteUA?si=LD1V5J38PJhotPF9)
+[![آموزش کامل ArenaAi AI](https://img.youtube.com/vi/aMuzdPpteUA/maxresdefault.jpg)](https://youtu.be/aMuzdPpteUA?si=LD1V5J38PJhotPF9)
 
 ### [▶️ تماشای آموزش در یوتیوب](https://youtu.be/aMuzdPpteUA?si=LD1V5J38PJhotPF9)
 
@@ -159,7 +159,7 @@ flowchart LR
     A([🛡️ ادمین]) -->|/admin| W
 
     subgraph CF[☁️ Cloudflare]
-        W{{⚡ Worker<br/>Technamooz AI}}
+        W{{⚡ Worker<br/>ArenaAi AI}}
         KV[(🗄️ KV<br/>حافظه · کاربران · کش)]
         WAI[🧠 Workers AI]
         W <--> KV
@@ -479,7 +479,7 @@ Account ID و API Token کلادفلر را در پنل ادمین وارد کن
 
 ## 📜 مجوز
 
-**MIT** — استفاده، تغییر و انتشار با ذکر نام **امیر پارسا (Amir Parsa)** و پروژهٔ **Technamooz AI** آزاد است.
+**MIT** — استفاده، تغییر و انتشار با ذکر نام **امیر پارسا (Amir Parsa)** و پروژهٔ **ArenaAi AI** آزاد است.
 
 </div>
 
@@ -487,14 +487,14 @@ Account ID و API Token کلادفلر را در پنل ادمین وارد کن
 
 <div align="center">
 
-### 🧠 Technamooz AI — `v1.0.0`
+### 🧠 ArenaAi AI — `v1.0.0`
 
 **ساختهٔ [امیر پارسا](https://t.me/technamooz) با ❤️ روی Cloudflare Workers**
 
 [![Website](https://img.shields.io/badge/🌐-technamooz.ir-0ea5e9?style=flat-square)](https://technamooz.ir)
 [![Telegram](https://img.shields.io/badge/Telegram-@technamooz-26A5E4?style=flat-square&logo=telegram&logoColor=white)](https://t.me/technamooz)
 [![Instagram](https://img.shields.io/badge/Instagram-technamooz-E4405F?style=flat-square&logo=instagram&logoColor=white)](https://instagram.com/technamooz)
-[![YouTube](https://img.shields.io/badge/YouTube-Technamooz-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtube.com/@technamooz)
+[![YouTube](https://img.shields.io/badge/YouTube-ArenaAi-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtube.com/@technamooz)
 [![GitHub](https://img.shields.io/badge/GitHub-technamooz-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/technamooz)
 [![X](https://img.shields.io/badge/X-@technamooz-000000?style=flat-square&logo=x&logoColor=white)](https://x.com/technamooz)
 
