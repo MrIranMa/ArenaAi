@@ -256,9 +256,16 @@ async function overview(env, session) {
   const [webCount, tgCount] = await Promise.all([indexCount(env, 'web'), indexCount(env, 'tg')]);
   const recent = await getLogs(env, 15);
 
-  const totals = { web_msgs: 0, tg_msgs: 0, feedbacks: 0 };
+  const totals = { web_msgs: 0, tg_msgs: 0, feedbacks: 0, image_generations: 0 };
   for (const day of stats) {
     for (const k of Object.keys(totals)) totals[k] += Number(day[k]) || 0;
+  }
+
+  const providerUsage = {};
+  for (const day of stats) {
+    for (const [key, value] of Object.entries(day)) {
+      if (key.startsWith('usage_')) providerUsage[key.slice(6)] = (providerUsage[key.slice(6)] || 0) + (Number(value) || 0);
+    }
   }
 
   return jsonResp({
@@ -274,6 +281,7 @@ async function overview(env, session) {
     session: { user: session.u, started: session.c },
     stats,
     totals,
+    providerUsage,
     counts: { web: webCount, tg: tgCount, total: webCount + tgCount },
     providers: status,
     telegram: {
