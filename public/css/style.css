@@ -972,3 +972,71 @@ body.modal-open { overflow: hidden; }
 
 .account-email{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--mut);direction:ltr}
 .account-logout{font-size:10px;padding:5px 8px;border:1px solid var(--line-soft);border-radius:8px}
+
+
+/* ---------------- ArenaAi lightweight aurora wallpaper ---------------- */
+:root,
+html[data-theme="night"] {
+  --aurora-one: rgba(54, 116, 255, .19);
+  --aurora-two: rgba(156, 70, 255, .15);
+  --aurora-three: rgba(232, 170, 91, .11);
+}
+html[data-theme="day"],
+html[data-theme="sand"] {
+  --aurora-one: rgba(50, 133, 210, .10);
+  --aurora-two: rgba(155, 95, 210, .08);
+  --aurora-three: rgba(210, 151, 74, .09);
+}
+html[data-theme="sea"] {
+  --aurora-one: rgba(35, 151, 255, .20);
+  --aurora-two: rgba(70, 91, 235, .16);
+  --aurora-three: rgba(47, 214, 203, .10);
+}
+html[data-theme="forest"] {
+  --aurora-one: rgba(48, 173, 126, .16);
+  --aurora-two: rgba(88, 111, 230, .13);
+  --aurora-three: rgba(183, 205, 103, .09);
+}
+html {
+  background: var(--bg);
+}
+body {
+  background: transparent;
+  isolation: isolate;
+}
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -24%;
+  z-index: -1;
+  pointer-events: none;
+  contain: strict;
+  will-change: transform, opacity;
+}
+body::before {
+  background:
+    radial-gradient(ellipse at 22% 28%, var(--aurora-one) 0, transparent 43%),
+    radial-gradient(ellipse at 78% 68%, var(--aurora-two) 0, transparent 42%);
+  opacity: .9;
+  animation: arenaAuroraDrift 34s ease-in-out infinite alternate;
+}
+body::after {
+  background:
+    radial-gradient(ellipse at 72% 18%, var(--aurora-three) 0, transparent 38%),
+    radial-gradient(ellipse at 28% 82%, var(--aurora-two) 0, transparent 40%);
+  opacity: .7;
+  animation: arenaAuroraDrift 46s ease-in-out infinite alternate-reverse;
+}
+@keyframes arenaAuroraDrift {
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 1.5%, 0) scale(1.035); }
+  100% { transform: translate3d(-1%, 2%, 0) scale(1.015); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after {
+    animation: none !important;
+    transform: none !important;
+  }
+}
