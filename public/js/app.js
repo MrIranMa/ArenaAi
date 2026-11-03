@@ -53,8 +53,6 @@
     lastAnswer: '',
     maintenance: false,
     pendingImages: [],
-    authMode: 'login',
-    account: null
   };
 
   const els = {};
@@ -67,25 +65,15 @@
     initThemeMenu();
     bindEvents();
     try {
-      const [config, auth, personas] = await Promise.all([
+      const [config, personas] = await Promise.all([
         api('/api/config'),
-        api('/api/auth/session'),
         api('/api/personas')
       ]);
       state.config = config;
       state.personas = personas.personas || [];
       state.personaMap = new Map(state.personas.map((p) => [p.id, p]));
-      if (!auth.authenticated) {
-        showAuthGate();
-        return;
-      }
-      state.account = auth.user;
-      if (els.accountEmail) { els.accountEmail.textContent = auth.user.email; els.accountEmail.hidden = false; }
-      if (els.btnLogout) els.btnLogout.hidden = false;
       const session = await api('/api/session', { method: 'POST', body: {} });
       state.session = session;
-      state.personaMap = new Map(state.personas.map((p) => [p.id, p]));
-
       state.maintenance = !!(config && config.settings && config.settings.maintenance);
       updateNotices();
       renderStatic();
@@ -96,10 +84,7 @@
       messageInputFocus();
       await loadHistory();
     } catch (e) {
-      if (e && e.data && e.data.setup) {
-        showAuthGate();
-        if (els.authError) els.authError.textContent = 'دیتابیس حساب‌ها هنوز به Cloudflare متصل نشده است؛ راه‌اندازی D1 باید روی حساب Cloudflare انجام شود.';
-      } else renderFatal(e);
+      renderFatal(e);
     }
   }
 
@@ -209,16 +194,6 @@
     els.feedbackMsg = $('#feedbackMsg');
     els.modalReset = $('#modalReset');
     els.toastWrap = $('#toastWrap');
-    els.authGate = $('#authGate');
-    els.authForm = $('#authForm');
-    els.authEmail = $('#authEmail');
-    els.authPassword = $('#authPassword');
-    els.authTitle = $('#authTitle');
-    els.authError = $('#authError');
-    els.authSubmit = $('#authSubmit');
-    els.authSwitch = $('#authSwitch');
-    els.accountEmail = $('#accountEmail');
-    els.btnLogout = $('#btnLogout');
   }
 
   /* ============================ api ============================ */
@@ -241,41 +216,6 @@
     return data;
   }
 
-  function showAuthGate() {
-    if (els.authGate) els.authGate.hidden = false;
-    if (els.authEmail) els.authEmail.focus();
-  }
-
-  function setAuthMode(mode) {
-    state.authMode = mode === 'register' ? 'register' : 'login';
-    const registering = state.authMode === 'register';
-    if (els.authTitle) els.authTitle.textContent = registering ? 'ساخت حساب آرنا ای‌آی' : 'ورود به آرنا ای‌آی';
-    if (els.authSubmit) els.authSubmit.textContent = registering ? 'ثبت‌نام و ورود' : 'ورود';
-    if (els.authSwitch) els.authSwitch.textContent = registering ? 'حساب دارید؟ وارد شوید' : 'حساب ندارید؟ ثبت‌نام کنید';
-    if (els.authPassword) els.authPassword.autocomplete = registering ? 'new-password' : 'current-password';
-    if (els.authError) els.authError.textContent = registering ? 'رمز عبور باید حداقل ۱۰ نویسه داشته باشد.' : '';
-  }
-
-  async function submitAuth(e) {
-    e.preventDefault();
-    if (!els.authEmail || !els.authPassword) return;
-    const email = String(els.authEmail.value || '').trim();
-    const password = String(els.authPassword.value || '');
-    if (password.length < 10) {
-      if (els.authError) els.authError.textContent = 'رمز عبور باید حداقل ۱۰ نویسه داشته باشد.';
-      return;
-    }
-    const registering = state.authMode === 'register';
-    if (els.authSubmit) { els.authSubmit.disabled = true; els.authSubmit.textContent = 'لطفاً صبر کنید…'; }
-    if (els.authError) els.authError.textContent = '';
-    try {
-      await api(registering ? '/api/auth/register' : '/api/auth/login', { method: 'POST', body: { email, password } });
-      location.reload();
-    } catch (error) {
-      if (els.authError) els.authError.textContent = String((error && error.message) || 'ورود ناموفق بود.');
-      if (els.authSubmit) { els.authSubmit.disabled = false; els.authSubmit.textContent = registering ? 'ثبت‌نام و ورود' : 'ورود'; }
-    }
-  }
 
   /* ============================ theme menu ============================ */
 
@@ -1271,13 +1211,6 @@
   /* ============================ events ============================ */
 
   function bindEvents() {
-    if (els.authForm) els.authForm.addEventListener('submit', submitAuth);
-    if (els.authSwitch) els.authSwitch.addEventListener('click', () => setAuthMode(state.authMode === 'login' ? 'register' : 'login'));
-    if (els.btnLogout) els.btnLogout.addEventListener('click', async () => {
-      els.btnLogout.disabled = true;
-      try { await api('/api/auth/logout', { method: 'POST', body: {} }); } catch {}
-      location.reload();
-    });
     if (els.chipPersona) els.chipPersona.addEventListener('click', openPersonaModal);
     if (els.chipModel) els.chipModel.addEventListener('click', openModelModal);
     if (els.btnSupportTop) els.btnSupportTop.addEventListener('click', openSupport);
