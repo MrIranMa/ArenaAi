@@ -1,5 +1,5 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
+//  ArenaAi — technamooz-ai-version1.0.0
 //  Author: Amir Parsa (امیر پارسا)
 //  src/providers.js — provider adapters (OpenAI-compatible + Workers AI)
 //
