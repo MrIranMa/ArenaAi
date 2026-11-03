@@ -16,7 +16,7 @@ test('release metadata is technamooz-ai-version1.0.0 with Amir Parsa credit', ()
   assert.equal(pkg.version, '1.0.0');
   assert.match(pkg.description, /Cloudflare Workers AI, OpenRouter, OrcaRouter, OneRouter/);
   assert.match(pkg.author, /Amir Parsa/);
-  assert.equal(APP.package, 'technamooz-ai-version1.0.0');
+  assert.equal(APP.package, 'arenaai-1.0.0');
   assert.equal(APP.version, '1.0.0');
   assert.equal(APP.authorEn, 'Amir Parsa');
 });
