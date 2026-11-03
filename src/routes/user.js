@@ -45,6 +45,7 @@ export async function handleUserApi(request, env, ctx) {
     if (path === '/api/reset' && method === 'POST') return resetMemory(request, env);
     if (path === '/api/feedback' && method === 'POST') return feedback(request, env);
     if (path === '/api/chat' && method === 'POST') return chat(request, env, ctx || {});
+    if (path === '/api/image' && method === 'POST') return generateImage(request, env);
 
     return jsonResp({ ok: false, error: 'مسیر API پیدا نشد.' }, 404);
   } catch (e) {
@@ -271,6 +272,37 @@ async function feedback(request, env) {
   await bumpStat(env, 'feedbacks');
   await log(env, 'feedback', 'web ' + uid.slice(0, 8) + ': ' + text.slice(0, 400));
   return jsonResp({ ok: true, message: settings.feedbackPrompt || 'بازخورد شما ثبت شد ❤️' });
+}
+
+/* ============================ image generation ============================ */
+
+async function generateImage(request, env) {
+  const { uid, profile } = await webUser(request, env, await getSettings(env));
+  if (profile.banned) return jsonResp({ ok: false, error: 'دسترسی شما مسدود شده است.' }, 403);
+  if (!env.AI || typeof env.AI.run !== 'function') {
+    return jsonResp({ ok: false, error: 'اتصال Cloudflare Workers AI فعال نیست. ابتدا AI Binding را در تنظیمات Worker فعال کن.' }, 503);
+  }
+  let body;
+  try { body = await request.json(); } catch { return jsonResp({ ok: false, error: 'درخواست JSON معتبر نیست.' }, 400); }
+  const prompt = sanitizeUserText(body.prompt || '');
+  if (prompt.length < 3 || prompt.length > 1200) {
+    return jsonResp({ ok: false, error: 'توضیح تصویر باید بین ۳ تا ۱۲۰۰ نویسه باشد.' }, 400);
+  }
+  const limited = await rateLimit(env, 'image:' + uid, 3, 3600);
+  if (!limited.ok) return jsonResp({ ok: false, error: 'سهمیهٔ ساخت تصویر پر شده است؛ یک ساعت دیگر دوباره تلاش کن.' }, 429);
+  try {
+    const result = await env.AI.run('@cf/black-forest-labs/flux-1-schnell', { prompt });
+    const encoded = result && (result.image || result.data && result.data[0]);
+    if (!encoded || typeof encoded !== 'string') {
+      throw new Error('مدل تصویر خروجی Base64 معتبر برنگرداند.');
+    }
+    await bumpStat(env, 'image_generations');
+    await log(env, 'image', 'web ' + uid.slice(0, 8) + ' generated an image');
+    return jsonResp({ ok: true, image: 'data:image/png;base64,' + encoded });
+  } catch (error) {
+    await log(env, 'error', 'image generation: ' + String((error && error.message) || error).slice(0, 220));
+    return jsonResp({ ok: false, error: 'ساخت تصویر انجام نشد؛ دسترسی مدل FLUX در Cloudflare Workers AI را بررسی کن.' }, 502);
+  }
 }
 
 /* ============================ chat (SSE) ============================ */
