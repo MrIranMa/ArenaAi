@@ -10,7 +10,6 @@ import {
   hasDB, jsonResp, newUid, ensureProfile, getProfile, saveProfile,
   getMind, wipeMind, getSettings, rateLimit, log, bumpStat
 } from '../store.js';
-import { handleAccountAuth, requireAccount } from '../auth-users.js';
 import {
   listModels, providerStatus, startCompletion, describeProviderError
 } from '../providers.js';
@@ -35,17 +34,11 @@ export async function handleUserApi(request, env, ctx) {
   }
 
   try {
-    if (path.startsWith('/api/auth/')) return handleAccountAuth(request, env, path);
     if (path === '/health' && method === 'GET') return health(env);
     if (path === '/api/config' && method === 'GET') return getConfig(env);
     if (path === '/api/personas' && method === 'GET') return getPersonas();
     if (path === '/api/models' && method === 'GET') return getModels(request, env, url);
 
-    const protectedPaths = ['/api/session', '/api/history', '/api/prefs', '/api/reset', '/api/feedback', '/api/chat', '/api/image'];
-    if (protectedPaths.includes(path)) {
-      const auth = await requireAccount(request, env);
-      if (auth.error) return auth.error;
-    }
     if (path === '/api/session' && (method === 'POST' || method === 'GET')) return getSession(request, env);
     if (path === '/api/history' && method === 'GET') return getHistory(request, env);
     if (path === '/api/prefs' && method === 'POST') return setPrefs(request, env);
@@ -127,17 +120,21 @@ function validUid(uid) {
   return typeof uid === 'string' && /^[a-f0-9]{16,64}$/i.test(uid);
 }
 
+function guestUid(request) {
+  const cookie = request.headers.get('Cookie') || '';
+  const match = cookie.match(/(?:^|;\\s*)arenaai_guest=([a-f0-9]{32})(?:;|$)/i);
+  return match ? match[1].toLowerCase() : '';
+}
+
 async function webUser(request, env, settings) {
-  const account = await requireAccount(request, env);
-  if (account.error || !account.user) throw new Error('Authenticated account is required');
-  const uid = account.user.uid;
+  const uid = guestUid(request) || newUid();
   const { profile } = await ensureProfile(env, 'web', uid, {
     platform: settings.defaultPlatform,
     model: settings.defaultModel[settings.defaultPlatform] || PLATFORMS[settings.defaultPlatform].defaultModel,
     persona: settings.defaultPersona,
     deep: false
   });
-  return { uid, profile, isNew: false, account: account.user };
+  return { uid, profile, isNew: false, account: null };
 }
 
 function prefs(profile, settings) {
@@ -154,8 +151,16 @@ function prefs(profile, settings) {
 
 async function getSession(request, env) {
   const settings = await getSettings(env);
-  const { uid, profile, isNew } = await webUser(request, env, settings);
-  const headers = {};
+  const uid = guestUid(request) || newUid();
+  const { profile } = await ensureProfile(env, 'web', uid, {
+    platform: settings.defaultPlatform,
+    model: settings.defaultModel[settings.defaultPlatform] || PLATFORMS[settings.defaultPlatform].defaultModel,
+    persona: settings.defaultPersona,
+    deep: false
+  });
+  const headers = {
+    'Set-Cookie': 'arenaai_guest=' + uid + '; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax'
+  };
   return jsonResp({
     ok: true,
     uid,
