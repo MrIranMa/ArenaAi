@@ -291,9 +291,15 @@
       statCard('💬', 'پیام‌های وب', fmtNum(totals.web_msgs), 'در ۷ روز اخیر'),
       statCard('✈️', 'پیام‌های تلگرام', fmtNum(totals.tg_msgs), 'در ۷ روز اخیر'),
       statCard('📝', 'بازخوردها', fmtNum(totals.feedbacks), 'در ۷ روز اخیر'),
+      statCard('🎨', 'تصاویر ساخته‌شده', fmtNum(totals.image_generations), 'در ۷ روز اخیر'),
       statCard('🧩', 'سرویس‌های آماده', ready + ' از ' + Object.keys(providers).length, 'اتصال‌های هوش مصنوعی'),
       statCard('🤖', 'شخصیت‌ها', fmtNum(data.personas), 'شخصیت تخصصی')
     ].join('');
+
+    const providerUsage = data.providerUsage || {};
+    const usageRows = Object.entries(providerUsage).map(([id, count]) =>
+      '<div class="provider-row"><span class="provider-name">' + esc(id) + '</span><strong>' + fmtNum(count) + ' درخواست</strong></div>'
+    ).join('');
 
     const providerRows = Object.entries(providers).map(([id, p]) => {
       return '<div class="provider-row">' +
@@ -326,6 +332,10 @@
           '<div class="card-head"><h3>پیام‌ها در ۷ روز</h3><span class="muted">وب + تلگرام</span></div>' +
           '<div class="bar-chart">' + (bars || '<p class="muted">داده‌ای نیست.</p>') + '</div>' +
         '</section>' +
+        '<section class="admin-card">' +
+          '<div class="card-head"><h3>مصرف سرویس‌دهنده‌ها</h3><span class="muted">در ۷ روز اخیر</span></div>' +
+          '<div class="provider-list">' + (usageRows || '<p class="muted">هنوز داده‌ای ثبت نشده.</p>') + '</div>' +
+        '</section>' +
         '<section class="admin-card wide">' +
           '<div class="card-head"><h3>آخرین گزارش‌ها</h3><button class="mini-btn" type="button" data-goto="logs">همهٔ گزارش‌ها</button></div>' +
           renderLogsTable(recent) +
@@ -338,7 +348,7 @@
             '<button class="quick-action" type="button" data-goto="settings">⚙️ تنظیمات عمومی</button>' +
             '<button class="quick-action" type="button" data-goto="security">🛡️ امنیت پنل</button>' +
           '</div>' +
-          '<p class="muted tiny" style="margin-top:12px">نسخه: ' + esc((data.app && data.app.package) || 'technamooz-ai-version1.0.0') +
+          '<p class="muted tiny" style="margin-top:12px">نسخه: ' + esc((data.app && data.app.package) || 'arenaai-1.0.0') +
           ' · ساختهٔ ' + esc((data.app && data.app.author) || 'امیر پارسا') + '</p>' +
         '</section>' +
       '</div>';
