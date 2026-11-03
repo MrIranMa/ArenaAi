@@ -938,3 +938,11 @@ body.modal-open { overflow: hidden; }
   .topbar, .dock, .foot, .msg-actions, .toast-wrap { display: none !important; }
   body { background: #fff; color: #000; }
 }
+
+
+/* ArenaAi attachment and voice controls */
+#attachmentInput { display: none; }
+#attachmentStatus { min-width: 0; font-size: 10px; color: var(--accent); }
+#btnAttach, #btnVoice { border: 1px solid var(--line-soft); border-radius: 8px; padding: 3px 8px; }
+#btnAttach:hover, #btnVoice:hover { border-color: var(--accent); color: var(--accent); }
+#btnAttach:disabled, #btnVoice:disabled { opacity: .55; cursor: wait; }
