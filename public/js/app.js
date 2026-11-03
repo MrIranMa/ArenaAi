@@ -162,6 +162,7 @@
     els.attachmentStatus = $('#attachmentStatus');
     els.btnVoice = $('#btnVoice');
     els.btnImage = $('#btnImage');
+    els.btnSpeak = $('#btnSpeak');
     els.modalImage = $('#modalImage');
     els.imageForm = $('#imageForm');
     els.imagePrompt = $('#imagePrompt');
@@ -602,6 +603,30 @@
     if (!els.attachmentStatus) return;
     const count = state.pendingImages.length;
     els.attachmentStatus.textContent = count ? ('📎 ' + count + ' تصویر آمادهٔ ارسال') : '';
+  }
+
+  function speakLastAnswer() {
+    if (!state.lastAnswer) {
+      toast('هنوز پاسخی برای خواندن وجود ندارد.', 'err');
+      return;
+    }
+    if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
+      toast('مرورگر شما پخش گفتار را پشتیبانی نمی‌کند.', 'err');
+      return;
+    }
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      if (els.btnSpeak) els.btnSpeak.textContent = '🔊 خواندن پاسخ';
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(state.lastAnswer.slice(0, 12000));
+    utterance.lang = 'fa-IR';
+    utterance.rate = 1;
+    utterance.onend = utterance.onerror = () => {
+      if (els.btnSpeak) els.btnSpeak.textContent = '🔊 خواندن پاسخ';
+    };
+    if (els.btnSpeak) els.btnSpeak.textContent = '⏹ توقف صدا';
+    window.speechSynthesis.speak(utterance);
   }
 
   async function createImage(event) {
@@ -1215,6 +1240,7 @@
     }
     if (els.btnVoice) els.btnVoice.addEventListener('click', startVoiceInput);
     if (els.btnImage) els.btnImage.addEventListener('click', () => openModal('modalImage'));
+    if (els.btnSpeak) els.btnSpeak.addEventListener('click', speakLastAnswer);
     if (els.imageForm) els.imageForm.addEventListener('submit', createImage);
     if (els.messageInput) {
       els.messageInput.addEventListener('input', () => {
