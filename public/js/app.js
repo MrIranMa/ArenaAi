@@ -161,6 +161,12 @@
     els.attachmentInput = $('#attachmentInput');
     els.attachmentStatus = $('#attachmentStatus');
     els.btnVoice = $('#btnVoice');
+    els.btnImage = $('#btnImage');
+    els.modalImage = $('#modalImage');
+    els.imageForm = $('#imageForm');
+    els.imagePrompt = $('#imagePrompt');
+    els.imageMsg = $('#imageMsg');
+    els.btnCreateImage = $('#btnCreateImage');
     els.btnSend = $('#btnSend');
     els.btnStop = $('#btnStop');
     els.btnDeep = $('#btnDeep');
@@ -596,6 +602,44 @@
     if (!els.attachmentStatus) return;
     const count = state.pendingImages.length;
     els.attachmentStatus.textContent = count ? ('📎 ' + count + ' تصویر آمادهٔ ارسال') : '';
+  }
+
+  async function createImage(event) {
+    event.preventDefault();
+    const prompt = String(els.imagePrompt && els.imagePrompt.value || '').trim();
+    if (prompt.length < 3) {
+      if (els.imageMsg) els.imageMsg.textContent = 'توضیح تصویر کوتاه است.';
+      return;
+    }
+    if (els.btnCreateImage) {
+      els.btnCreateImage.disabled = true;
+      els.btnCreateImage.textContent = 'در حال ساخت تصویر…';
+    }
+    if (els.imageMsg) els.imageMsg.textContent = 'ممکن است ساخت تصویر کمی زمان ببرد.';
+    try {
+      const result = await api('/api/image', { method: 'POST', body: { prompt } });
+      if (!result || !result.image) throw new Error('سرویس تصویر خروجی معتبری برنگرداند.');
+      closeModal('modalImage');
+      const item = appendMessage('bot', 'تصویر ساخته‌شده با ArenaAi', {});
+      const img = document.createElement('img');
+      img.className = 'generated-image';
+      img.alt = 'تصویر ساخته‌شده با هوش مصنوعی';
+      img.loading = 'lazy';
+      img.src = result.image;
+      item._body.appendChild(img);
+      if (els.imagePrompt) els.imagePrompt.value = '';
+      if (els.imageMsg) els.imageMsg.textContent = 'تصویر آماده شد.';
+      scrollBottom(true);
+      toast('تصویر با موفقیت ساخته شد.', 'ok');
+    } catch (error) {
+      if (els.imageMsg) els.imageMsg.textContent = String(error && error.message || 'ساخت تصویر ناموفق بود.');
+      toast(String(error && error.message || 'ساخت تصویر ناموفق بود.'), 'err');
+    } finally {
+      if (els.btnCreateImage) {
+        els.btnCreateImage.disabled = false;
+        els.btnCreateImage.textContent = 'ساخت تصویر';
+      }
+    }
   }
 
   function startVoiceInput() {
@@ -1170,6 +1214,8 @@
       els.attachmentInput.addEventListener('change', handleAttachments);
     }
     if (els.btnVoice) els.btnVoice.addEventListener('click', startVoiceInput);
+    if (els.btnImage) els.btnImage.addEventListener('click', () => openModal('modalImage'));
+    if (els.imageForm) els.imageForm.addEventListener('submit', createImage);
     if (els.messageInput) {
       els.messageInput.addEventListener('input', () => {
         resizeInput();
