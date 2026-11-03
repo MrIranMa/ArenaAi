@@ -28,6 +28,8 @@ test('wrangler config keeps existing KV and Workers AI; setup provisions D1 auth
   assert.match(toml, /\[ai\]/);
   assert.match(toml, /binding\s*=\s*"AI"/);
   assert.equal(/\[\[d1_databases\]\]/.test(toml), false);
+  assert.match(readFileSync(join(ROOT, 'scripts/setup-auth-d1.mjs'), 'utf8'), /d1 create arenaai-auth/);
+  assert.equal(existsSync(join(ROOT, 'migrations', '0001_auth.sql')), true);
   assert.equal(/python/i.test(toml), false);
 });
 
