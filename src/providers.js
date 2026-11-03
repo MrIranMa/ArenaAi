@@ -509,8 +509,12 @@ function openAiHeaders(platform, key) {
 
 function normalizeMessages(messages) {
   return (Array.isArray(messages) ? messages : [])
-    .filter((m) => m && m.role && m.content != null && String(m.content).trim() !== '')
-    .map((m) => ({ role: m.role, content: String(m.content) }))
+    .filter((m) => m && m.role && m.content != null &&
+      (Array.isArray(m.content) || String(m.content).trim() !== ''))
+    .map((m) => ({
+      role: m.role,
+      content: Array.isArray(m.content) ? m.content : String(m.content)
+    }))
     .slice(0, 80);
 }
 
