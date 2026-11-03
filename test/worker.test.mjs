@@ -55,7 +55,7 @@ test('Worker public chat, admin panel and Telegram flows', async () => {
 
     const config = await callWorker(worker, env, '/api/config');
     assert.equal(config.data.ok, true);
-    assert.equal(config.data.app.package, 'technamooz-ai-version1.0.0');
+    assert.equal(config.data.app.package, 'arenaai-1.0.0');
     assert.equal(config.data.app.authorEn, 'Amir Parsa');
     assert.equal(config.data.platforms.length, 4);
     assert.equal(config.data.providers.openrouter.keyMask, null);
@@ -168,7 +168,7 @@ test('Worker public chat, admin panel and Telegram flows', async () => {
     assert.equal(adminStatus.response.status, 200);
     assert.equal(adminStatus.data.authed, false);
     assert.equal(adminStatus.data.mustChange, true);
-    assert.equal(adminStatus.data.app.package, 'technamooz-ai-version1.0.0');
+    assert.equal(adminStatus.data.app.package, 'arenaai-1.0.0');
 
     const badLogin = await callWorker(worker, env, '/admin/login', {
       method: 'POST',
