@@ -298,7 +298,7 @@ async function generateImage(request, env) {
     }
     await bumpStat(env, 'image_generations');
     await log(env, 'image', 'web ' + uid.slice(0, 8) + ' generated an image');
-    return jsonResp({ ok: true, image: 'data:image/png;base64,' + encoded });
+    return jsonResp({ ok: true, image: 'data:image/jpeg;base64,' + encoded });
   } catch (error) {
     await log(env, 'error', 'image generation: ' + String((error && error.message) || error).slice(0, 220));
     return jsonResp({ ok: false, error: 'ساخت تصویر انجام نشد؛ دسترسی مدل FLUX در Cloudflare Workers AI را بررسی کن.' }, 502);
