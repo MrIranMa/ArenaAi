@@ -22,26 +22,6 @@
 </head>
 <body>
 
-  <section id="authGate" class="auth-gate" hidden aria-labelledby="authTitle">
-    <div class="auth-panel">
-      <img src="/assets/logo.svg" width="54" height="54" alt="ArenaAi" />
-      <p class="auth-eyebrow">ARENA AI ACCOUNT</p>
-      <h1 id="authTitle">ورود به آرنا ای‌آی</h1>
-      <p class="auth-description">برای استفاده از چت هوش مصنوعی، ابتدا وارد حساب خود شوید یا یک حساب رایگان بسازید.</p>
-      <form id="authForm" class="auth-form">
-        <label for="authEmail">ایمیل</label>
-        <input id="authEmail" type="email" autocomplete="email" maxlength="254" required placeholder="name@example.com" dir="ltr" />
-        <label for="authPassword">رمز عبور</label>
-        <input id="authPassword" type="password" autocomplete="current-password" minlength="10" maxlength="128" required placeholder="حداقل ۱۰ نویسه" dir="ltr" />
-        <p id="authError" class="auth-error" role="alert"></p>
-        <button id="authSubmit" class="btn primary auth-submit" type="submit">ورود</button>
-      </form>
-      <button id="authSwitch" class="auth-switch" type="button">حساب ندارید؟ ثبت‌نام کنید</button>
-      <p class="auth-privacy">رمز عبور به‌صورت امن و هش‌شده ذخیره می‌شود.</p>
-    </div>
-  </section>
-
-
   <!-- ============================ topbar ============================ -->
   <header class="topbar">
     <div class="topbar-in">
@@ -68,8 +48,6 @@
         <span id="connPill" class="conn-pill" title="وضعیت اتصال پلتفرم‌ها">
           <i id="connDot" class="conn-dot off" aria-hidden="true"></i><span id="connText" class="conn-text">—</span>
         </span>
-        <span id="accountEmail" class="account-email" hidden></span>
-        <button id="btnLogout" class="icon-btn account-logout" type="button" hidden title="خروج از حساب">خروج</button>
         <div class="theme-wrap">
           <button id="btnTheme" class="icon-btn" type="button" title="انتخاب تم" aria-haspopup="true" aria-expanded="false" aria-controls="themeMenu">
             <span class="theme-dot" aria-hidden="true"></span>
