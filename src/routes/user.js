@@ -395,7 +395,7 @@ async function chat(request, env, ctx) {
     started = await startCompletion(env, {
       ...selection,
       messages,
-      allowFallback: true
+      allowFallback: imageParts.length === 0
     });
   } catch (e) {
     await log(env, 'error', 'web chat start: ' + String((e && e.message) || e).slice(0, 220));
