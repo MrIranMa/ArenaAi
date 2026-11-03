@@ -1,6 +1,6 @@
 // ============================================================
-//  Technamooz AI — test helpers (no Cloudflare account required)
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — test helpers (no Cloudflare account required)
+//  Author: ArenaAi
 // ============================================================
 
 import { webcrypto } from 'node:crypto';
@@ -151,7 +151,7 @@ export function createEnv({ withAI = true } = {}) {
     AUTH_DB: new MockD1(),
     ASSETS: createAssets(),
     APP_VERSION: '1.0.0',
-    APP_NAME: 'Technamooz AI'
+    APP_NAME: 'ArenaAi'
   };
   if (withAI) env.AI = new MockAI();
   return env;
