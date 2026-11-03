@@ -6,10 +6,11 @@
 import { webcrypto } from 'node:crypto';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, extname, normalize } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
 
-export const ROOT = new URL('..', import.meta.url).pathname;
+export const ROOT = fileURLToPath(new URL('..', import.meta.url));
 export const PUBLIC = join(ROOT, 'public');
 
 export class MockKV {
