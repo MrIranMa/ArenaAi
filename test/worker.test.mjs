@@ -77,29 +77,15 @@ test('Worker public chat, admin panel and Telegram flows', async () => {
     assert.equal(openrouterModels.data.count, 2);
     assert.equal(openrouterModels.data.provider.keyMask, null);
 
-    /* ---------------- web session, prefs, chat SSE and history ---------------- */
-    const denied = await callWorker(worker, env, '/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'anonymous request' })
-    });
-    assert.equal(denied.response.status, 401);
-
-    const registered = await callWorker(worker, env, '/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'arena-test@example.invalid', password: 'long-example-passphrase-01' })
-    });
-    assert.equal(registered.response.status, 200);
-    const webCookie = cookieFrom(registered.response);
-    assert.match(webCookie, /^arenaai_session=[a-f0-9]{64}$/);
-
+    /* ---------------- anonymous web session, prefs, chat SSE and history ---------------- */
     const session = await callWorker(worker, env, '/api/session', {
       method: 'POST',
-      headers: jsonHeaders(webCookie),
+      headers: jsonHeaders(),
       body: '{}'
     });
     assert.equal(session.response.status, 200);
+    const webCookie = cookieFrom(session.response);
+    assert.match(webCookie, /^arenaai_guest=/);
 
     const prefs = await callWorker(worker, env, '/api/prefs', {
       method: 'POST',
@@ -526,30 +512,6 @@ test('Worker public chat, admin panel and Telegram flows', async () => {
       headers: { Cookie: freshCookie }
     });
     assert.equal(afterLogout.response.status, 401);
-    const accountLogout = await callWorker(worker, env, '/api/auth/logout', {
-      method: 'POST',
-      headers: jsonHeaders(webCookie),
-      body: '{}'
-    });
-    assert.equal(accountLogout.response.status, 200);
-    const afterAccountLogout = await callWorker(worker, env, '/api/history', {
-      headers: { Cookie: webCookie }
-    });
-    assert.equal(afterAccountLogout.response.status, 401);
-    const accountLogin = await callWorker(worker, env, '/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'arena-test@example.invalid', password: 'long-example-passphrase-01' })
-    });
-    assert.equal(accountLogin.response.status, 200);
-    const accountCookie = cookieFrom(accountLogin.response);
-    const loggedInSession = await callWorker(worker, env, '/api/session', {
-      method: 'POST',
-      headers: jsonHeaders(accountCookie),
-      body: '{}'
-    });
-    assert.equal(loggedInSession.response.status, 200);
-
   } finally {
     globalThis.fetch = originalFetch;
   }
