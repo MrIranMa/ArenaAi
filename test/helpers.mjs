@@ -70,6 +70,56 @@ export function createAssets() {
   };
 }
 
+export class MockD1 {
+  constructor() { this.users = new Map(); this.sessions = new Map(); }
+  prepare(sql) {
+    const database = this;
+    return {
+      bind(...values) {
+        return {
+          async first() {
+            if (sql.includes('JOIN users')) {
+              const [tokenHash, now] = values;
+              const session = database.sessions.get(tokenHash);
+              if (!session || session.expires_at <= now) return null;
+              const user = database.users.get(session.user_id);
+              return user ? { id: user.id, email: user.email, uid: user.uid, created_at: user.created_at } : null;
+            }
+            if (sql.includes('FROM users WHERE email')) {
+              return [...database.users.values()].find((u) => u.email.toLowerCase() === String(values[0]).toLowerCase()) || null;
+            }
+            return null;
+          },
+          async run() {
+            if (sql.includes('INSERT INTO users')) {
+              const [id, email, password_salt, password_hash, uid, created_at] = values;
+              if ([...database.users.values()].some((u) => u.email.toLowerCase() === String(email).toLowerCase())) {
+                throw new Error('UNIQUE constraint failed: users.email');
+              }
+              database.users.set(id, { id, email, password_salt, password_hash, uid, created_at });
+              return { success: true };
+            }
+            if (sql.includes('INSERT INTO sessions')) {
+              const [token_hash, user_id, created_at, expires_at] = values;
+              database.sessions.set(token_hash, { token_hash, user_id, created_at, expires_at });
+              return { success: true };
+            }
+            if (sql.includes('DELETE FROM sessions WHERE token_hash')) {
+              database.sessions.delete(values[0]);
+              return { success: true };
+            }
+            if (sql.includes('DELETE FROM sessions WHERE expires_at')) {
+              for (const [key, row] of database.sessions) if (row.expires_at <= values[0]) database.sessions.delete(key);
+              return { success: true };
+            }
+            return { success: true };
+          }
+        };
+      }
+    };
+  }
+}
+
 export class MockAI {
   constructor() {
     this.calls = [];
@@ -97,6 +147,7 @@ export class MockAI {
 export function createEnv({ withAI = true } = {}) {
   const env = {
     DB: new MockKV(),
+    AUTH_DB: new MockD1(),
     ASSETS: createAssets(),
     APP_VERSION: '1.0.0',
     APP_NAME: 'Technamooz AI'
