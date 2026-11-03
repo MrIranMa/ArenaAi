@@ -1,6 +1,6 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — ArenaAi-v1.0.0
+//  Author: ArenaAi
 //  src/store.js — Cloudflare KV storage layer
 //  (settings, keys, users, isolated memory, logs, rate limits, stats)
 // ============================================================
