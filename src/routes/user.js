@@ -308,7 +308,25 @@ async function chat(request, env, ctx) {
     historyMind = { ...mind, rounds: mind.rounds.slice(0, -1) };
   }
 
-  if (!userText) return jsonResp({ ok: false, error: 'متن پیام خالی است.' }, 400);
+  const attachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 2) : [];
+  const imageParts = [];
+  let attachmentBytes = 0;
+  for (const item of attachments) {
+    if (!item || !['image/png', 'image/jpeg', 'image/webp'].includes(String(item.type || ''))) {
+      return jsonResp({ ok: false, error: 'نوع فایل تصویری پشتیبانی نمی‌شود.' }, 400);
+    }
+    const data = String(item.data || '');
+    const prefix = 'data:' + item.type + ';base64,';
+    if (!data.startsWith(prefix) || data.length > 2800000) {
+      return jsonResp({ ok: false, error: 'فایل تصویر نامعتبر یا بیش از حد بزرگ است.' }, 400);
+    }
+    attachmentBytes += data.length;
+    imageParts.push({ type: 'image_url', image_url: { url: data } });
+  }
+  if (attachmentBytes > 5200000) {
+    return jsonResp({ ok: false, error: 'مجموع حجم تصاویر بیش از حد مجاز است.' }, 413);
+  }
+  if (!userText && !imageParts.length) return jsonResp({ ok: false, error: 'متن پیام خالی است.' }, 400);
   if (userText.length > LIMITS.messageMaxChars) {
     return jsonResp({ ok: false, error: 'متن پیام خیلی طولانی است.' }, 400);
   }
@@ -324,10 +342,17 @@ async function chat(request, env, ctx) {
     return jsonResp({ ok: false, error: 'شناسهٔ مدل نامعتبر است.' }, 400);
   }
 
+  if (imageParts.length && selection.platform === 'workersai') {
+    return jsonResp({ ok: false, error: 'برای تحلیل تصویر، یک مدل بینایی از OpenRouter یا سرویس‌دهندهٔ سازگار انتخاب کن؛ Workers AI فعلی این مسیر را پشتیبانی نمی‌کند.' }, 400);
+  }
+  const userContent = imageParts.length
+    ? [{ type: 'text', text: userText || 'لطفاً تصویر پیوست‌شده را تحلیل کن.' }, ...imageParts]
+    : null;
   const messages = buildMessages({
     persona: selection.persona,
     mind: historyMind,
-    userText,
+    userText: userText || 'تصویر پیوست‌شده را تحلیل کن.',
+    userContent,
     settings,
     deep: selection.deep
   });
