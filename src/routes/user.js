@@ -122,7 +122,7 @@ function validUid(uid) {
 
 function guestUid(request) {
   const cookie = request.headers.get('Cookie') || '';
-  const match = cookie.match(/(?:^|;\\s*)arenaai_guest=([a-f0-9]{32})(?:;|$)/i);
+  const match = cookie.match(/(?:^|;\s*)arenaai_guest=([a-f0-9]{32})(?:;|$)/i);
   return match ? match[1].toLowerCase() : '';
 }
 
