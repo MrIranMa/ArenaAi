@@ -1,5 +1,5 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
+//  ArenaAi — ArenaAi-v1.0.0
 //  scripts/check-syntax.mjs — syntax check for all JS sources
 //  (worker modules are ESM; package.json has "type":"module")
 // ============================================================
@@ -41,4 +41,4 @@ if (fail) {
   console.log(`${fail} file(s) have syntax errors — fix them before deploy.`);
   process.exit(1);
 }
-console.log('✅ همهٔ فایل‌های JS سالم هستند (Technamooz AI — امیر پارسا).');
+console.log('✅ همهٔ فایل‌های JS سالم هستند (ArenaAi — ArenaAi).');
