@@ -150,7 +150,6 @@
     els.btnTheme = $('#btnTheme');
     els.themeMenu = $('#themeMenu');
     els.themeOptions = $('#themeOptions');
-    els.btnSupportTop = $('#btnSupportTop');
     els.maintenance = $('#maintenance');
     els.announce = $('#announce');
     els.chatLog = $('#chatLog');
@@ -187,11 +186,6 @@
     els.modalPersona = $('#modalPersona');
     els.personaGrid = $('#personaGrid');
     els.personaCurrentLabel = $('#personaCurrentLabel');
-    els.modalSupport = $('#modalSupport');
-    els.supportSocials = $('#supportSocials');
-    els.feedbackForm = $('#feedbackForm');
-    els.feedbackText = $('#feedbackText');
-    els.feedbackMsg = $('#feedbackMsg');
     els.modalReset = $('#modalReset');
     els.toastWrap = $('#toastWrap');
   }
@@ -295,22 +289,12 @@
 
   function renderStatic() {
     const social = (state.config && state.config.social) || [];
-    const support = (state.config && state.config.support) || {};
 
     if (els.socialLinks) {
       els.socialLinks.innerHTML = social.map((s) =>
         '<a href="' + esc(s.url || '#') + '" target="_blank" rel="noopener" title="' + esc(s.nameFa || '') + '">' +
         '<span>' + esc(s.icon || '•') + '</span><span>' + esc(s.nameFa || s.handle || '') + '</span>' +
         '<span class="social-handle">' + esc(s.handle || '') + '</span></a>'
-      ).join('');
-    }
-    if (els.supportSocials) {
-      const supportItem = { icon: '🆘', nameFa: 'پشتیبانی', handle: support.handle, url: support.url };
-      els.supportSocials.innerHTML = [supportItem, ...social].map((s) =>
-        '<a class="social-row" href="' + esc(s.url || '#') + '" target="_blank" rel="noopener">' +
-        '<span class="social-icon">' + esc(s.icon || '•') + '</span>' +
-        '<span>' + esc(s.nameFa || s.handle || '') + '</span>' +
-        (s.handle ? '<span class="social-handle">' + esc(s.handle) + '</span>' : '') + '</a>'
       ).join('');
     }
     if (els.footVersion) {
@@ -415,7 +399,6 @@
 
   function renderEmpty() {
     if (!els.chatLog) return;
-    const support = (state.config && state.config.support) || {};
     const suggestions = [
       { title: 'گفتگو', prompt: 'سلام! خودت رو معرفی کن؛ چه کارهایی از تو برمی‌آید؟' },
       { title: 'برنامه‌نویسی', prompt: 'یک صفحهٔ وب ساده با HTML و CSS برای فرم تماس بنویس.' },
@@ -434,8 +417,6 @@
           '<b>' + esc(s.title) + '</b><span>' + esc(s.prompt) + '</span></button>'
         ).join('') +
         '</div>' +
-        '<p class="hero-support">🆘 پشتیبانی: <a href="' + esc(support.url || 'https://t.me/technamooz_support') + '" target="_blank" rel="noopener">' +
-        esc(support.handle || '@technamooz_support') + '</a></p>' +
         '<img class="hero-logo" src="/assets/logo.svg" alt="آرنا ای‌آی" width="72" height="72" />' +
       '</div>';
   }
@@ -1122,39 +1103,6 @@
       toast(String((e && e.message) || 'خطا'), 'err');
     }
   }
-
-  /* ============================ support / feedback ============================ */
-
-  function openSupport() {
-    openModal('modalSupport');
-  }
-
-  async function submitFeedback(e) {
-    e.preventDefault();
-    if (!els.feedbackText) return;
-    const text = String(els.feedbackText.value || '').trim();
-    if (!text) return;
-    const btn = $('button[type="submit"]', els.feedbackForm);
-    if (btn) btn.disabled = true;
-    try {
-      await api('/api/feedback', { method: 'POST', body: { text } });
-      els.feedbackText.value = '';
-      if (els.feedbackMsg) {
-        els.feedbackMsg.textContent = 'بازخوردت رسید؛ ممنون! 🙏';
-        els.feedbackMsg.className = 'fb-msg';
-      }
-      setTimeout(() => { if (els.feedbackMsg) els.feedbackMsg.textContent = ''; }, 4000);
-      toast('بازخورد ارسال شد. 🙏', 'ok');
-    } catch (err) {
-      if (els.feedbackMsg) {
-        els.feedbackMsg.textContent = 'ارسال ناموفق بود: ' + String((err && err.message) || '');
-        els.feedbackMsg.className = 'fb-msg err';
-      }
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  }
-
   /* ============================ modals / toast ============================ */
 
   function openModal(id) {
@@ -1202,7 +1150,6 @@
           ? 'فضای ذخیره‌سازی KV هنوز تنظیم نشده است. مدیر باید طبق README یک namespace با نام DB بسازد و شناسهٔ آن را در wrangler.toml قرار دهد.'
           : 'دریافت تنظیمات از سرور ناموفق بود. اتصال اینترنت و تنظیمات Worker را بررسی کن.') + '</p>' +
         '<p class="mini-note" dir="ltr">' + esc(message) + '</p>' +
-        '<a class="btn primary" style="align-self:flex-start" href="https://t.me/technamooz_support" target="_blank" rel="noopener">🆘 پشتیبانی @technamooz_support</a>' +
       '</div>';
     if (els.btnSend) els.btnSend.disabled = true;
     if (els.messageInput) els.messageInput.disabled = true;
@@ -1213,7 +1160,6 @@
   function bindEvents() {
     if (els.chipPersona) els.chipPersona.addEventListener('click', openPersonaModal);
     if (els.chipModel) els.chipModel.addEventListener('click', openModelModal);
-    if (els.btnSupportTop) els.btnSupportTop.addEventListener('click', openSupport);
     if (els.btnNewChat) els.btnNewChat.addEventListener('click', newChat);
     if (els.btnReset) els.btnReset.addEventListener('click', () => openModal('modalReset'));
 
@@ -1342,8 +1288,6 @@
         if (card) selectPersona(card.dataset.persona, false);
       });
     }
-
-    if (els.feedbackForm) els.feedbackForm.addEventListener('submit', submitFeedback);
 
     $$('[data-close]').forEach((btn) => {
       btn.addEventListener('click', () => closeModal(btn.dataset.close));
