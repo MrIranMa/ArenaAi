@@ -91,6 +91,7 @@ export async function handleAccountAuth(request, env, path) {
     }
     return json({ ok: true }, 200, { 'Set-Cookie': clearCookie(isSecureRequest(request)) });
   }
+  if (path !== '/api/auth/register' && path !== '/api/auth/login') return json({ ok: false, error: 'مسیر ورود نامعتبر است.' }, 404);
   let body;
   try { body = await request.json(); } catch { return json({ ok: false, error: 'اطلاعات ارسالی معتبر نیست.' }, 400); }
   const email = String(body.email || '').trim().toLowerCase();
