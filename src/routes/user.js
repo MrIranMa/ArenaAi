@@ -327,6 +327,7 @@ async function chat(request, env, ctx) {
     return jsonResp({ ok: false, error: 'مجموع حجم تصاویر بیش از حد مجاز است.' }, 413);
   }
   if (!userText && !imageParts.length) return jsonResp({ ok: false, error: 'متن پیام خالی است.' }, 400);
+  if (!userText && imageParts.length) userText = 'لطفاً تصویر پیوست‌شده را تحلیل کن.';
   if (userText.length > LIMITS.messageMaxChars) {
     return jsonResp({ ok: false, error: 'متن پیام خیلی طولانی است.' }, 400);
   }
