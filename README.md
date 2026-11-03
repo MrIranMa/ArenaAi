@@ -160,9 +160,9 @@ flowchart LR
 
     subgraph CF[☁️ Cloudflare]
         W{{⚡ Worker<br/>ArenaAi AI}}
-        KV[(🗄️ KV<br/>حافظه · کاربران · کش)]
+        KV[(🗄️ KV<br/>تنظیمات · حافظه · کش)]\n        D1[(🗃️ D1 / SQLite<br/>حساب‌ها · نشست‌ها)]
         WAI[🧠 Workers AI]
-        W <--> KV
+        W <--> KV\n        W <--> D1
         W <--> WAI
     end
 
@@ -171,7 +171,7 @@ flowchart LR
     W -->|API| ON[🔀 OneRouter]
 
     style W fill:#6366f1,stroke:#22d3ee,color:#fff,stroke-width:2px
-    style KV fill:#0ea5e9,color:#fff
+    style KV fill:#0ea5e9,color:#fff\n    style D1 fill:#16a34a,color:#fff
     style WAI fill:#F38020,color:#fff
 ```
 
@@ -348,7 +348,7 @@ npm run deploy
 
 ## 🧠 حافظه و جداسازی کاربران
 
-- 🪪 هر کاربر وب یک UID تصادفی در کوکی `tm_uid` دارد.
+- 🪪 هر کاربر وب پس از ثبت‌نام یک UID تصادفی و ثابت در جدول کاربران D1 می‌گیرد؛ کوکی نشست فقط توکن تصادفی HttpOnly را حمل می‌کند.
 - 💬 هر کاربر تلگرام با `chatId` خودش شناخته می‌شود.
 - ⚙️ هر کاربر **پروفایل مستقل** (پلتفرم، مدل، شخصیت، حالت عمیق) و **حافظهٔ مستقل** دارد.
 - 📝 حافظه شامل خلاصهٔ گفتگو و فکت‌های استخراج‌شده است و از پنل ادمین قابل مشاهده/پاک‌سازی است.
