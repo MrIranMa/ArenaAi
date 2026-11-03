@@ -80,6 +80,8 @@
         return;
       }
       state.account = auth.user;
+      if (els.accountEmail) { els.accountEmail.textContent = auth.user.email; els.accountEmail.hidden = false; }
+      if (els.btnLogout) els.btnLogout.hidden = false;
       const session = await api('/api/session', { method: 'POST', body: {} });
       state.session = session;
       state.personaMap = new Map(state.personas.map((p) => [p.id, p]));
@@ -215,6 +217,8 @@
     els.authError = $('#authError');
     els.authSubmit = $('#authSubmit');
     els.authSwitch = $('#authSwitch');
+    els.accountEmail = $('#accountEmail');
+    els.btnLogout = $('#btnLogout');
   }
 
   /* ============================ api ============================ */
@@ -1267,6 +1271,7 @@
   /* ============================ events ============================ */
 
   function bindEvents() {\n    if (els.authForm) els.authForm.addEventListener('submit', submitAuth);\n    if (els.authSwitch) els.authSwitch.addEventListener('click', () => setAuthMode(state.authMode === 'login' ? 'register' : 'login'));
+    if (els.btnLogout) els.btnLogout.addEventListener('click', async () => {\n      els.btnLogout.disabled = true;\n      try { await api('/api/auth/logout', { method: 'POST', body: {} }); } catch {}\n      location.reload();\n    });
     if (els.chipPersona) els.chipPersona.addEventListener('click', openPersonaModal);
     if (els.chipModel) els.chipModel.addEventListener('click', openModelModal);
     if (els.btnSupportTop) els.btnSupportTop.addEventListener('click', openSupport);
