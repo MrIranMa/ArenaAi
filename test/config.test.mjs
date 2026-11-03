@@ -12,7 +12,7 @@ import { ROOT, PUBLIC } from './helpers.mjs';
 
 test('release metadata is technamooz-ai-version1.0.0 with Amir Parsa credit', () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
-  assert.equal(pkg.name, 'technamooz-ai');
+  assert.equal(pkg.name, 'arenaai');
   assert.equal(pkg.version, '1.0.0');
   assert.match(pkg.description, /Cloudflare Workers AI, OpenRouter, OrcaRouter, OneRouter/);
   assert.match(pkg.author, /Amir Parsa/);
@@ -21,7 +21,7 @@ test('release metadata is technamooz-ai-version1.0.0 with Amir Parsa credit', ()
   assert.equal(APP.authorEn, 'Amir Parsa');
 });
 
-test('wrangler config uses KV + Workers AI + run_worker_first and no D1 binding', () => {
+test('wrangler config keeps existing KV and Workers AI; setup provisions D1 auth binding', () => {
   const toml = readFileSync(join(ROOT, 'wrangler.toml'), 'utf8');
   assert.match(toml, /run_worker_first\s*=\s*true/);
   assert.match(toml, /binding\s*=\s*"DB"/);
