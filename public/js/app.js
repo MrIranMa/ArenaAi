@@ -1,5 +1,5 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
+//  ArenaAi AI — technamooz-ai-version1.0.0
 //  Author: Amir Parsa (امیر پارسا)
 //  public/js/app.js — public web chat (paper/console UI, 5 themes)
 // ============================================================
@@ -268,7 +268,7 @@
     const cfgSettings = (state.config && state.config.settings) || {};
     if (els.maintenance) {
       if (state.maintenance) {
-        els.maintenance.textContent = '🛠 تکناموز در حال تعمیر و به‌روزرسانی است؛ کمی بعد برگردید.';
+        els.maintenance.textContent = '🛠 آرنا ای‌آی در حال تعمیر و به‌روزرسانی است؛ کمی بعد برگردید.';
         els.maintenance.hidden = false;
       } else els.maintenance.hidden = true;
     }
@@ -303,7 +303,7 @@
     }
     if (els.footVersion) {
       const app = (state.config && state.config.app) || {};
-      els.footVersion.textContent = 'تکناموز نسخهٔ ' + (app.version || '1.0.0');
+      els.footVersion.textContent = 'آرنا ای‌آی نسخهٔ ' + (app.version || '1.0.0');
     }
   }
 
@@ -412,7 +412,7 @@
     ];
     els.chatLog.innerHTML =
       '<div class="empty-state">' +
-        '<span class="hero-eyebrow">TECHNAMOOZ — AGENT CHAT</span>' +
+        '<span class="hero-eyebrow">ARENA AI — AGENT CHAT</span>' +
         '<hr class="hero-rule" />' +
         '<h1 class="hero-title">سلام 👋<br />چه کاری برایت انجام دهم؟</h1>' +
         '<p class="hero-sub">۱۶ عامل متخصص، سناریوهای نهایت‌قدرت و حافظهٔ اختصاصی؛ از تعمیر کد تا تجزیه‌وتحلیل کسب‌وکار. از سریع‌راه‌های زیر شروع کن یا مستقیم بنویس.</p>' +
@@ -424,7 +424,7 @@
         '</div>' +
         '<p class="hero-support">🆘 پشتیبانی: <a href="' + esc(support.url || 'https://t.me/technamooz_support') + '" target="_blank" rel="noopener">' +
         esc(support.handle || '@technamooz_support') + '</a></p>' +
-        '<img class="hero-logo" src="/assets/logo.svg" alt="تکناموز" width="72" height="72" />' +
+        '<img class="hero-logo" src="/assets/logo.svg" alt="آرنا ای‌آی" width="72" height="72" />' +
       '</div>';
   }
 
@@ -1025,7 +1025,7 @@
     const setup = !!(error && error.data && error.data.setup);
     els.chatLog.innerHTML =
       '<div class="empty-state">' +
-        '<span class="hero-eyebrow">TECHNAMOOZ — ERROR</span>' +
+        '<span class="hero-eyebrow">ARENA AI — ERROR</span>' +
         '<hr class="hero-rule" />' +
         '<h1 class="hero-title">اتصال برقرار نشد</h1>' +
         '<p class="hero-sub">' + (setup
