@@ -1,6 +1,6 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — ArenaAi-v1.0.0
+//  Author: ArenaAi
 //  src/index.js — Cloudflare Worker entry point
 //  Routes:
 //    /api/* + /health              → public chat API
@@ -224,8 +224,8 @@ function adminFallbackPage() {
 <body><main class="card"><span class="ov">ADMIN — FALLBACK</span><hr />
 <h1>پنل مدیریت ${escapeHtml(APP.faName)}</h1>
 <p>فایل <code>public/admin.html</code> پیدا نشد. مطمئن شوید پوشهٔ <code>public</code> کامل deploy شده است.</p>
-<p>راهنمای نصب در <code>README.md</code> موجود است. برای پشتیبانی: <a href="${escapeHtml(APP.supportTelegram)}">${escapeHtml(APP.supportHandle)}</a></p>
-<p class="muted">${escapeHtml(APP.package)} — ساختهٔ ${escapeHtml(APP.author)}</p>
+<p>راهنمای نصب در <code>README.md</code> موجود است.</p>
+<p class="muted">${escapeHtml(APP.package)} — ArenaAi</p>
 </main></body></html>`, 200, { 'Cache-Control': 'no-store' });
 }
 
