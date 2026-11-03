@@ -1,17 +1,17 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
+//  ArenaAi — technamooz-ai-version1.0.0
 //  Author: Amir Parsa (امیر پارسا)
 //  src/config.js — application metadata, providers, defaults, limits
 // ============================================================
 
 export const APP = {
-  name: 'Technamooz AI',
-  faName: 'تکناموز',
+  name: 'ArenaAi',
+  faName: 'آرنا ای‌آی',
   package: 'technamooz-ai-version1.0.0',
   version: '1.0.0',
   author: 'امیر پارسا',
   authorEn: 'Amir Parsa',
-  tagline: 'دستیار هوش مصنوعی حرفه‌ای تکناموز',
+  tagline: 'دستیار هوش مصنوعی حرفه‌ای ArenaAi',
   description: 'پلتفرم چت هوش مصنوعی، ربات تلگرام و پنل مدیریت روی Cloudflare Workers',
   defaultAdminUser: 'admin',
   defaultAdminPass: 'admin',
@@ -106,7 +106,7 @@ export const PLATFORMS = {
 export const PLATFORM_ORDER = ['workersai', 'openrouter', 'orcarouter', 'onerouter'];
 
 export const DEFAULT_SETTINGS = {
-  siteTitle: 'Technamooz AI | تکناموز',
+  siteTitle: 'ArenaAi | آرنا ای‌آی',
   announcement: '',
   defaultPlatform: 'workersai',
   defaultModel: {
@@ -126,7 +126,7 @@ export const DEFAULT_SETTINGS = {
   fallbackEnabled: true,
   maintenance: false,
   extraInstructions: '',
-  feedbackPrompt: 'پیام شما برای تیم تکناموز ثبت شد ❤️'
+  feedbackPrompt: 'پیام شما برای تیم ArenaAi ثبت شد ❤️'
 };
 
 export const LIMITS = {
