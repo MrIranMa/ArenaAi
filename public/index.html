@@ -20,7 +20,25 @@
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
   <link rel="stylesheet" href="/css/style.css" />
 </head>
-<body>
+<body>\n\n  <section id="authGate" class="auth-gate" hidden aria-labelledby="authTitle">
+    <div class="auth-panel">
+      <img src="/assets/logo.svg" width="54" height="54" alt="ArenaAi" />
+      <p class="auth-eyebrow">ARENA AI ACCOUNT</p>
+      <h1 id="authTitle">ورود به آرنا ای‌آی</h1>
+      <p class="auth-description">برای استفاده از چت هوش مصنوعی، ابتدا وارد حساب خود شوید یا یک حساب رایگان بسازید.</p>
+      <form id="authForm" class="auth-form">
+        <label for="authEmail">ایمیل</label>
+        <input id="authEmail" type="email" autocomplete="email" maxlength="254" required placeholder="name@example.com" dir="ltr" />
+        <label for="authPassword">رمز عبور</label>
+        <input id="authPassword" type="password" autocomplete="current-password" minlength="10" maxlength="128" required placeholder="حداقل ۱۰ نویسه" dir="ltr" />
+        <p id="authError" class="auth-error" role="alert"></p>
+        <button id="authSubmit" class="btn primary auth-submit" type="submit">ورود</button>
+      </form>
+      <button id="authSwitch" class="auth-switch" type="button">حساب ندارید؟ ثبت‌نام کنید</button>
+      <p class="auth-privacy">رمز عبور به‌صورت امن و هش‌شده ذخیره می‌شود.</p>
+    </div>
+  </section>
+
 
   <!-- ============================ topbar ============================ -->
   <header class="topbar">
