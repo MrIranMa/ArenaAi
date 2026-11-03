@@ -160,9 +160,11 @@ flowchart LR
 
     subgraph CF[☁️ Cloudflare]
         W{{⚡ Worker<br/>ArenaAi AI}}
-        KV[(🗄️ KV<br/>تنظیمات · حافظه · کش)]\n        D1[(🗃️ D1 / SQLite<br/>حساب‌ها · نشست‌ها)]
+        KV[(🗄️ KV<br/>تنظیمات · حافظه · کش)]
+        D1[(🗃️ D1 / SQLite<br/>حساب‌ها · نشست‌ها)]
         WAI[🧠 Workers AI]
-        W <--> KV\n        W <--> D1
+        W <--> KV
+        W <--> D1
         W <--> WAI
     end
 
@@ -171,7 +173,8 @@ flowchart LR
     W -->|API| ON[🔀 OneRouter]
 
     style W fill:#6366f1,stroke:#22d3ee,color:#fff,stroke-width:2px
-    style KV fill:#0ea5e9,color:#fff\n    style D1 fill:#16a34a,color:#fff
+    style KV fill:#0ea5e9,color:#fff
+    style D1 fill:#16a34a,color:#fff
     style WAI fill:#F38020,color:#fff
 ```
 
