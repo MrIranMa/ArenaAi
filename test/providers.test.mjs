@@ -1,6 +1,6 @@
 // ============================================================
-//  Technamooz AI — provider, persona and SSE tests
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — provider, persona and SSE tests
+//  Author: ArenaAi
 // ============================================================
 
 import { test } from 'node:test';
