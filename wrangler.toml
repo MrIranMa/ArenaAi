@@ -1,8 +1,7 @@
 # ============================================================
-#  Technamooz AI — technamooz-ai-version1.0.0
-#  Developer / Author: Amir Parsa (امیر پارسا)
+#  ArenaAi — ArenaAi-v1.0.0
+#  Developer / Author: ArenaAi
 #  Platform: Cloudflare Workers (no server — 100% edge, free tier)
-#  Telegram: @technamooz   |   Support: @technamooz_support
 # ------------------------------------------------------------
 #  Storage: Cloudflare KV (no D1 migrations needed — deploy-proof)
 #  AI providers (all four share the same chat/memory/persona core):
@@ -44,4 +43,4 @@ id = "d3fcec9d369548cdae0472f4ba3afc7c"
 
 [vars]
 APP_VERSION = "1.0.0"
-APP_NAME = "Technamooz AI"
+APP_NAME = "ArenaAi"
