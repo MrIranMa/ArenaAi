@@ -1,6 +1,6 @@
 // ============================================================
-//  ArenaAi AI — technamooz-ai-version1.0.0
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi AI — ArenaAi-v1.0.0
+//  Author: ArenaAi
 //  public/js/admin.js — secure admin panel (CSRF protected)
 // ============================================================
 
@@ -349,7 +349,7 @@
             '<button class="quick-action" type="button" data-goto="security">🛡️ امنیت پنل</button>' +
           '</div>' +
           '<p class="muted tiny" style="margin-top:12px">نسخه: ' + esc((data.app && data.app.package) || 'arenaai-1.0.0') +
-          ' · ساختهٔ ' + esc((data.app && data.app.author) || 'امیر پارسا') + '</p>' +
+          ' · ساختهٔ ' + esc((data.app && data.app.author) || 'ArenaAi') + '</p>' +
         '</section>' +
       '</div>';
   }
