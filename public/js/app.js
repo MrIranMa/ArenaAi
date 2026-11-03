@@ -144,9 +144,6 @@
     els.chipPersonaName = $('#chipPersonaName');
     els.chipModel = $('#chipModel');
     els.chipModelName = $('#chipModelName');
-    els.connPill = $('#connPill');
-    els.connDot = $('#connDot');
-    els.connText = $('#connText');
     els.btnTheme = $('#btnTheme');
     els.themeMenu = $('#themeMenu');
     els.themeOptions = $('#themeOptions');
@@ -304,16 +301,8 @@
   }
 
   function updateConnection() {
-    if (!els.connDot) return;
     const ready = (state.config && state.config.providers) ? hasReadyProvider() : false;
-    els.connDot.className = 'conn-dot ' + (ready ? 'on' : 'off');
     if (els.chipModel) els.chipModel.classList.toggle('conn-on', ready);
-    if (els.connText) {
-      const provider = readyPlatform();
-      els.connText.textContent = ready
-        ? (provider ? provider.faLabel || provider.id : 'متصل')
-        : 'پلتفرمی تنظیم نشده';
-    }
   }
 
   function hasReadyProvider() {
