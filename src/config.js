@@ -1,6 +1,6 @@
 // ============================================================
-//  ArenaAi — technamooz-ai-version1.0.0
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — ArenaAi-v1.0.0
+//  Author: ArenaAi
 //  src/config.js — application metadata, providers, defaults, limits
 // ============================================================
 
@@ -9,22 +9,16 @@ export const APP = {
   faName: 'آرنا ای‌آی',
   package: 'arenaai-1.0.0',
   version: '1.0.0',
-  author: 'امیر پارسا',
-  authorEn: 'Amir Parsa',
+  author: 'ArenaAi',
+  authorEn: 'ArenaAi',
   tagline: 'دستیار هوش مصنوعی حرفه‌ای ArenaAi',
   description: 'پلتفرم چت هوش مصنوعی، ربات تلگرام و پنل مدیریت روی Cloudflare Workers',
   defaultAdminUser: 'admin',
   defaultAdminPass: 'admin',
-  supportTelegram: 'https://t.me/technamooz_support',
-  supportHandle: '@technamooz_support',
-  website: 'https://technamooz.ai',
-  social: [
-    { nameFa: 'تلگرام', handle: '@technamooz', url: 'https://t.me/technamooz', icon: '✈️' },
-    { nameFa: 'اینستاگرام', handle: '@technamooz', url: 'https://instagram.com/technamooz', icon: '📸' },
-    { nameFa: 'یوتیوب', handle: '@technamooz', url: 'https://youtube.com/@technamooz', icon: '▶️' },
-    { nameFa: 'گیت‌هاب', handle: '@technamooz', url: 'https://github.com/technamooz', icon: '🐙' },
-    { nameFa: 'توییتر (X)', handle: '@technamooz', url: 'https://x.com/technamooz', icon: '🐦' }
-  ]
+  supportTelegram: '',
+  supportHandle: '',
+  website: '',
+  social: []
 };
 
 export const KV_KEYS = {
