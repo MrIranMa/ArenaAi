@@ -51,7 +51,8 @@
     abort: null,
     lastUserText: '',
     lastAnswer: '',
-    maintenance: false
+    maintenance: false,
+    pendingImages: []
   };
 
   const els = {};
@@ -156,6 +157,10 @@
     els.chatLog = $('#chatLog');
     els.composerForm = $('#composerForm');
     els.messageInput = $('#messageInput');
+    els.btnAttach = $('#btnAttach');
+    els.attachmentInput = $('#attachmentInput');
+    els.attachmentStatus = $('#attachmentStatus');
+    els.btnVoice = $('#btnVoice');
     els.btnSend = $('#btnSend');
     els.btnStop = $('#btnStop');
     els.btnDeep = $('#btnDeep');
@@ -538,11 +543,102 @@
     $$('[data-action="regen"]', els.chatLog).forEach((b) => b.closest('.msg-actions') && b.closest('.msg-actions').remove());
   }
 
+  /* ============================ attachments / voice ============================ */
+
+  async function handleAttachments() {
+    const files = Array.from((els.attachmentInput && els.attachmentInput.files) || []);
+    if (!files.length) return;
+    for (const file of files) {
+      if (file.type.startsWith('image/')) {
+        if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+          toast('فقط تصویر PNG، JPG یا WebP پشتیبانی می‌شود.', 'err');
+          continue;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+          toast('حجم هر تصویر باید حداکثر ۲ مگابایت باشد.', 'err');
+          continue;
+        }
+        if (state.pendingImages.length >= 2) {
+          toast('حداکثر دو تصویر را می‌توانی هم‌زمان بفرستی.', 'err');
+          break;
+        }
+        const data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ''));
+          reader.onerror = () => reject(new Error('خواندن تصویر ناموفق بود.'));
+          reader.readAsDataURL(file);
+        }).catch((e) => { toast(e.message, 'err'); return ''; });
+        if (data) state.pendingImages.push({ name: file.name, type: file.type, data });
+      } else {
+        const allowed = /\.(txt|md|json|csv|js|ts|py|html|css|xml|ya?ml|log)$/i.test(file.name);
+        if (!allowed) {
+          toast('فعلاً فایل متنی و کدنویسی یا تصویر پشتیبانی می‌شود؛ PDF و Word هنوز فعال نیست.', 'err');
+          continue;
+        }
+        if (file.size > 200 * 1024) {
+          toast('حجم فایل متنی باید حداکثر ۲۰۰ کیلوبایت باشد.', 'err');
+          continue;
+        }
+        const content = await file.text();
+        const block = '\n\n--- فایل پیوست: ' + file.name.replace(/[\\r\\n]/g, '') + ' ---\n' + content + '\n--- پایان فایل ---\n';
+        if (els.messageInput) {
+          els.messageInput.value = (els.messageInput.value || '') + block;
+          resizeInput();
+          updateCharCount();
+        }
+      }
+    }
+    if (els.attachmentInput) els.attachmentInput.value = '';
+    renderAttachmentStatus();
+  }
+
+  function renderAttachmentStatus() {
+    if (!els.attachmentStatus) return;
+    const count = state.pendingImages.length;
+    els.attachmentStatus.textContent = count ? ('📎 ' + count + ' تصویر آمادهٔ ارسال') : '';
+  }
+
+  function startVoiceInput() {
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+      toast('مرورگر شما تبدیل گفتار به متن را پشتیبانی نمی‌کند. از Chrome یا Edge استفاده کن.', 'err');
+      return;
+    }
+    const recognition = new Recognition();
+    recognition.lang = 'fa-IR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    if (els.btnVoice) {
+      els.btnVoice.disabled = true;
+      els.btnVoice.textContent = '🎙 در حال شنیدن…';
+    }
+    recognition.onresult = (event) => {
+      const transcript = event.results && event.results[0] && event.results[0][0]
+        ? event.results[0][0].transcript : '';
+      if (transcript && els.messageInput) {
+        els.messageInput.value = (els.messageInput.value ? els.messageInput.value + ' ' : '') + transcript;
+        resizeInput();
+        updateCharCount();
+        els.messageInput.focus();
+      }
+    };
+    recognition.onerror = () => toast('دسترسی میکروفون یا تشخیص گفتار با خطا روبه‌رو شد.', 'err');
+    recognition.onend = () => {
+      if (els.btnVoice) {
+        els.btnVoice.disabled = false;
+        els.btnVoice.textContent = '🎙 ورودی صوتی';
+      }
+    };
+    try { recognition.start(); } catch { toast('شروع ورودی صوتی ممکن نشد.', 'err'); if (els.btnVoice) els.btnVoice.disabled = false; }
+  }
+
   /* ============================ send / stream ============================ */
 
   async function sendMessage(rawText, options = {}) {
     let text = String(rawText == null ? '' : rawText).trim();
-    if (!text || state.streaming || state.maintenance || !state.platform || !state.model) {
+    const images = state.pendingImages.slice(0, 2);
+    if (!text && !images.length) return;
+    if (state.streaming || state.maintenance || !state.platform || !state.model) {
       if (!state.model && text) {
         toast('اول از دکمهٔ «مدل» بالای صفحه یک مدل انتخاب کن.', 'err');
         openModelModal();
@@ -561,7 +657,7 @@
 
     removeEmpty();
     removePreviousRegen();
-    if (!regenerate) appendMessage('user', text, {});
+    if (!regenerate) appendMessage('user', text + (images.length ? '\n📎 ' + images.length + ' تصویر پیوست شد' : ''), {});
 
     const placeholder = appendMessage('bot', '', {});
     setBotTyping(placeholder);
@@ -585,7 +681,8 @@
           model: state.model,
           persona: state.persona,
           deep: state.deep,
-          regenerate
+          regenerate,
+          attachments: regenerate ? [] : images.map((item) => ({ name: item.name, type: item.type, data: item.data }))
         })
       });
 
@@ -610,6 +707,10 @@
     } finally {
       state.streaming = false;
       state.abort = null;
+      if (!regenerate && images.length) {
+        state.pendingImages = [];
+        renderAttachmentStatus();
+      }
       setComposerState();
       setStreamState('');
       messageInputFocus();
@@ -1064,6 +1165,11 @@
       });
     }
     if (els.btnStop) els.btnStop.addEventListener('click', stopStreaming);
+    if (els.btnAttach && els.attachmentInput) {
+      els.btnAttach.addEventListener('click', () => els.attachmentInput.click());
+      els.attachmentInput.addEventListener('change', handleAttachments);
+    }
+    if (els.btnVoice) els.btnVoice.addEventListener('click', startVoiceInput);
     if (els.messageInput) {
       els.messageInput.addEventListener('input', () => {
         resizeInput();
