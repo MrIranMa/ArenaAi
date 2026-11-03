@@ -1,6 +1,6 @@
 // ============================================================
-//  Technamooz AI — release/config contract tests
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — release/config contract tests
+//  Author: ArenaAi
 // ============================================================
 
 import { test } from 'node:test';
@@ -10,15 +10,15 @@ import { join } from 'node:path';
 import { APP, PLATFORM_ORDER, PLATFORMS } from '../src/config.js';
 import { ROOT, PUBLIC } from './helpers.mjs';
 
-test('release metadata is technamooz-ai-version1.0.0 with Amir Parsa credit', () => {
+test('release metadata is ArenaAi v1.0.0', () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
   assert.equal(pkg.name, 'arenaai');
   assert.equal(pkg.version, '1.0.0');
   assert.match(pkg.description, /Cloudflare Workers AI, OpenRouter, OrcaRouter, OneRouter/);
-  assert.match(pkg.author, /Amir Parsa/);
+  assert.equal(pkg.author, 'ArenaAi');
   assert.equal(APP.package, 'arenaai-1.0.0');
   assert.equal(APP.version, '1.0.0');
-  assert.equal(APP.authorEn, 'Amir Parsa');
+  assert.equal(APP.authorEn, 'ArenaAi');
 });
 
 test('wrangler config keeps existing KV and Workers AI; setup provisions D1 auth binding', () => {
