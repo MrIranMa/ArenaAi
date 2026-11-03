@@ -1,6 +1,6 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — ArenaAi-v1.0.0
+//  Author: ArenaAi
 //  src/telegram.js — complete Telegram bot:
 //  models, personalities, deep mode, memory, support, social links
 // ============================================================
