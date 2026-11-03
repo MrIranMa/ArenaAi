@@ -1,6 +1,6 @@
 // ============================================================
-//  ArenaAi — technamooz-ai-version1.0.0
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — ArenaAi-v1.0.0
+//  Author: ArenaAi
 //  src/chat.js — conversation intelligence, context trimming, memory
 // ============================================================
 
