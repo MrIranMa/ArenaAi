@@ -7,7 +7,7 @@
 export const APP = {
   name: 'ArenaAi',
   faName: 'آرنا ای‌آی',
-  package: 'technamooz-ai-version1.0.0',
+  package: 'arenaai-1.0.0',
   version: '1.0.0',
   author: 'امیر پارسا',
   authorEn: 'Amir Parsa',
