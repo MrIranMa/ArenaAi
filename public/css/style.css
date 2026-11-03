@@ -969,3 +969,6 @@ body.modal-open { overflow: hidden; }
 .auth-switch{margin-top:17px;color:var(--accent);font-size:12px;text-decoration:underline}
 .auth-privacy{margin:18px 0 0;color:var(--mut);font-size:10px}
 @media(max-width:480px){.auth-panel{padding:28px 20px}}
+
+.account-email{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--mut);direction:ltr}
+.account-logout{font-size:10px;padding:5px 8px;border:1px solid var(--line-soft);border-radius:8px}
