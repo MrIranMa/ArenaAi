@@ -1,6 +1,6 @@
 // ============================================================
-//  ArenaAi AI — technamooz-ai-version1.0.0
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi AI — ArenaAi-v1.0.0
+//  Author: ArenaAi
 //  public/js/app.js — public web chat (paper/console UI, 5 themes)
 // ============================================================
 
