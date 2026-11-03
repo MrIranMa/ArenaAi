@@ -1,5 +1,5 @@
 // ============================================================
-//  Technamooz AI — offline unit test for parseProviderSse
+//  ArenaAi — offline unit test for parseProviderSse
 //  (no Cloudflare account needed — pure stream simulation)
 //  Usage: node scripts/test-sse-parser.mjs
 // ============================================================
