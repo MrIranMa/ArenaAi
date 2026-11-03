@@ -946,3 +946,8 @@ body.modal-open { overflow: hidden; }
 #btnAttach, #btnVoice { border: 1px solid var(--line-soft); border-radius: 8px; padding: 3px 8px; }
 #btnAttach:hover, #btnVoice:hover { border-color: var(--accent); color: var(--accent); }
 #btnAttach:disabled, #btnVoice:disabled { opacity: .55; cursor: wait; }
+
+.generated-image { display: block; width: min(100%, 720px); max-height: 620px; object-fit: contain; margin-top: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+#imagePrompt { width: 100%; resize: vertical; min-height: 100px; padding: 10px 12px; color: var(--ink); background: var(--bg-soft); border: 1px solid var(--line); border-radius: 10px; }
+#imagePrompt:focus { outline: 1px solid var(--accent); }
+#btnImage { border: 1px solid var(--line-soft); border-radius: 8px; padding: 3px 8px; }
