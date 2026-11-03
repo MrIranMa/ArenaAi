@@ -1,7 +1,7 @@
 // ============================================================
-//  Technamooz AI — Worker route integration test
+//  ArenaAi — Worker route integration test
 //  Uses mock KV, ASSETS, Workers AI and Telegram/OpenRouter fetch.
-//  Author: Amir Parsa (امیر پارسا)
+//  Author: ArenaAi
 // ============================================================
 
 import { test } from 'node:test';
@@ -56,11 +56,11 @@ test('Worker public chat, admin panel and Telegram flows', async () => {
     const config = await callWorker(worker, env, '/api/config');
     assert.equal(config.data.ok, true);
     assert.equal(config.data.app.package, 'arenaai-1.0.0');
-    assert.equal(config.data.app.authorEn, 'Amir Parsa');
+    assert.equal(config.data.app.authorEn, 'ArenaAi');
     assert.equal(config.data.platforms.length, 4);
     assert.equal(config.data.providers.openrouter.keyMask, null);
-    assert.equal(config.data.social.every((s) => s.handle === '@technamooz'), true);
-    assert.equal(config.data.support.handle, '@technamooz_support');
+    assert.deepEqual(config.data.social, []);
+    assert.equal(config.data.support.handle, '');
 
     const personas = await callWorker(worker, env, '/api/personas');
     assert.equal(personas.data.personas.length, 16);
