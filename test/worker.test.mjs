@@ -23,7 +23,7 @@ test('Worker public chat, admin panel and Telegram flows', async () => {
     /* ---------------- static pages and security headers ---------------- */
     const home = await callWorker(worker, env, '/');
     assert.equal(home.response.status, 200);
-    assert.match(home.text, /تکناموز/);
+    assert.match(home.text, /آرنا ای‌آی/);
     assert.match(home.response.headers.get('content-security-policy') || '', /default-src 'self'/);
     assert.equal(home.response.headers.get('x-frame-options'), 'DENY');
     assert.equal(home.text.includes('href="/admin"'), false, 'public page must not link to admin');
