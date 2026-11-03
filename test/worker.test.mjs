@@ -526,6 +526,30 @@ test('Worker public chat, admin panel and Telegram flows', async () => {
       headers: { Cookie: freshCookie }
     });
     assert.equal(afterLogout.response.status, 401);
+    const accountLogout = await callWorker(worker, env, '/api/auth/logout', {
+      method: 'POST',
+      headers: jsonHeaders(webCookie),
+      body: '{}'
+    });
+    assert.equal(accountLogout.response.status, 200);
+    const afterAccountLogout = await callWorker(worker, env, '/api/history', {
+      headers: { Cookie: webCookie }
+    });
+    assert.equal(afterAccountLogout.response.status, 401);
+    const accountLogin = await callWorker(worker, env, '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'arena-test@example.invalid', password: 'long-example-passphrase-01' })
+    });
+    assert.equal(accountLogin.response.status, 200);
+    const accountCookie = cookieFrom(accountLogin.response);
+    const loggedInSession = await callWorker(worker, env, '/api/session', {
+      method: 'POST',
+      headers: jsonHeaders(accountCookie),
+      body: '{}'
+    });
+    assert.equal(loggedInSession.response.status, 200);
+
   } finally {
     globalThis.fetch = originalFetch;
   }
