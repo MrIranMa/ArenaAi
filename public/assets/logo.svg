@@ -1,30 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Technamooz AI — تکناموز">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="ArenaAi AI — آرنا ای‌آی">
   <defs>
-    <linearGradient id="tmBg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="aaBg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0b1020"/>
       <stop offset="0.55" stop-color="#101636"/>
       <stop offset="1" stop-color="#1c1040"/>
     </linearGradient>
-    <linearGradient id="tmAcc" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="aaAcc" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#22d3ee"/>
       <stop offset="0.5" stop-color="#7c5cff"/>
       <stop offset="1" stop-color="#ec4899"/>
     </linearGradient>
-    <linearGradient id="tmTn" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="aaMark" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#eef4ff"/>
       <stop offset="1" stop-color="#b7c6ff"/>
     </linearGradient>
-    <filter id="tmGlow" x="-30%" y="-30%" width="160%" height="160%">
+    <filter id="aaGlow" x="-30%" y="-30%" width="160%" height="160%">
       <feGaussianBlur stdDeviation="10" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
-  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#tmBg)"/>
-  <rect x="16" y="16" width="480" height="480" rx="108" fill="none" stroke="url(#tmAcc)" stroke-width="8" opacity="0.9"/>
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#aaBg)"/>
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="none" stroke="url(#aaAcc)" stroke-width="8" opacity="0.9"/>
 
   <!-- circuit frame: tech vibes -->
-  <g stroke="url(#tmAcc)" stroke-width="3" fill="none" opacity="0.55" stroke-linecap="round">
+  <g stroke="url(#aaAcc)" stroke-width="3" fill="none" opacity="0.55" stroke-linecap="round">
     <path d="M96 150 h84 M96 150 v-54 M180 362 h-84 v54"/>
     <path d="M416 150 h-84 M416 150 v-54 M332 362 h84 v54"/>
   </g>
@@ -36,22 +36,22 @@
   </g>
 
   <!-- TN monogram -->
-  <g filter="url(#tmGlow)">
+  <g filter="url(#aaGlow)">
     <path d="M128 190 h256 l-30 52h-88v178h-96 l2-78h-40l-2-74h40z" fill="none" opacity="0"/>
     <text x="256" y="342" font-family="'Segoe UI', Tahoma, sans-serif" font-size="216" font-weight="800"
-          text-anchor="middle" fill="url(#tmTn)" letter-spacing="6">TN</text>
+          text-anchor="middle" fill="url(#aaMark)" letter-spacing="6">AA</text>
   </g>
 
   <!-- AI spark node on top of the N -->
   <g>
-    <circle cx="368" cy="196" r="14" fill="url(#tmAcc)"/>
-    <circle cx="368" cy="196" r="26" fill="none" stroke="url(#tmAcc)" stroke-width="4" opacity="0.7"/>
-    <circle cx="368" cy="196" r="38" fill="none" stroke="url(#tmAcc)" stroke-width="2" opacity="0.35"/>
+    <circle cx="368" cy="196" r="14" fill="url(#aaAcc)"/>
+    <circle cx="368" cy="196" r="26" fill="none" stroke="url(#aaAcc)" stroke-width="4" opacity="0.7"/>
+    <circle cx="368" cy="196" r="38" fill="none" stroke="url(#aaAcc)" stroke-width="2" opacity="0.35"/>
   </g>
 
   <!-- footer word -->
   <text x="256" y="428" text-anchor="middle" font-family="Tahoma, 'Segoe UI', sans-serif" font-size="34"
-        font-weight="700" fill="#9fb4ff">تکناموز</text>
+        font-weight="700" fill="#9fb4ff">آرنا ای‌آی</text>
   <text x="256" y="462" text-anchor="middle" font-family="Tahoma, 'Segoe UI', sans-serif" font-size="20"
-        font-weight="600" fill="#22d3ee" letter-spacing="4">TECHNAMOOZ AI</text>
+        font-weight="600" fill="#22d3ee" letter-spacing="4">ARENA AI AI</text>
 </svg>
