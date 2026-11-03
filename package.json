@@ -15,7 +15,8 @@
     "predeploy": "npm run check && npm test",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "tail": "wrangler tail"
+    "tail": "wrangler tail",
+    "setup:auth": "node scripts/setup-auth-d1.mjs"
   },
   "devDependencies": {
     "sharp": "^0.33.5",
