@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -6,7 +6,7 @@ import { dirname, resolve } from 'node:path';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const configPath = resolve(root, 'wrangler.toml');
 const migrationPath = resolve(root, 'migrations/0001_auth.sql');
-const run = (args) => execFileSync('npx', ['wrangler', ...args], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const run = (args) => execSync('npx wrangler ' + args.join(' '), { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 
 if (!existsSync(configPath) || !existsSync(migrationPath)) throw new Error('فایل‌های تنظیمات یا migration پیدا نشدند.');
 let config = readFileSync(configPath, 'utf8');
