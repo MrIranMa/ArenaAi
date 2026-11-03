@@ -315,7 +315,7 @@ async function chat(request, env, ctx) {
     return jsonResp({ ok: false, error: 'دسترسی شما مسدود شده است. با پشتیبانی تماس بگیرید.' }, 403);
   }
   if (settings.maintenance) {
-    return jsonResp({ ok: false, error: 'تکناموز موقتاً در حال به‌روزرسانی است. لطفاً بعداً تلاش کنید.' }, 503);
+    return jsonResp({ ok: false, error: 'آرنا ای‌آی موقتاً در حال به‌روزرسانی است. لطفاً بعداً تلاش کنید.' }, 503);
   }
 
   let body;
@@ -517,6 +517,7 @@ function sseSource(env, ctx, started, data) {
             data.profile.deep = data.selection.deep;
             await saveProfile(env, 'web', data.uid, data.profile);
             await bumpStat(env, 'web_msgs');
+            await bumpStat(env, 'usage_' + started.used.platform);
             persisted = true;
           } catch (e) {
             await log(env, 'warn', 'web persist: ' + String((e && e.message) || e).slice(0, 200));
