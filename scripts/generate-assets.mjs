@@ -1,7 +1,7 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
+//  ArenaAi — ArenaAi-v1.0.0
 //  scripts/generate-assets.mjs — build PNG logo, favicon and OG cover
-//  Author: Amir Parsa (امیر پارسا)
+//  Author: ArenaAi
 //  Run: npm run assets   (requires the optional sharp package)
 // ============================================================
 
@@ -55,13 +55,13 @@ const ogSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"
   <circle cx="240" cy="520" r="220" fill="url(#glow)" opacity=".55"/>
   <path d="M0 70 H1200" stroke="url(#line)" stroke-width="3" opacity=".8"/>
   <path d="M0 560 H1200" stroke="url(#line)" stroke-width="2" opacity=".35"/>
-  <text x="424" y="232" font-family="DejaVu Sans, Arial, sans-serif" font-size="64" font-weight="700" fill="#eef4ff">Technamooz AI</text>
+  <text x="424" y="232" font-family="DejaVu Sans, Arial, sans-serif" font-size="64" font-weight="700" fill="#eef4ff">ArenaAi</text>
   <text x="426" y="286" font-family="DejaVu Sans, Arial, sans-serif" font-size="27" fill="#9aa8d4">Professional AI chat on Cloudflare Workers</text>
   <text x="426" y="336" font-family="DejaVu Sans, Arial, sans-serif" font-size="24" fill="#22d3ee">Web Chat  •  Telegram Bot  •  16 Personas</text>
   <text x="426" y="384" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" fill="#9aa8d4">Cloudflare Workers AI · OpenRouter · OrcaRouter · OneRouter</text>
   <rect x="426" y="432" width="356" height="52" rx="26" fill="url(#line)" opacity=".18"/>
-  <text x="604" y="466" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="20" fill="#dce6ff">@technamooz  ·  @technamooz_support</text>
-  <text x="1088" y="574" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="19" fill="#6f7fae">Amir Parsa · امیر پارسا</text>
+  <text x="604" y="466" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="20" fill="#dce6ff">ArenaAi</text>
+  <text x="1088" y="574" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="19" fill="#6f7fae">ArenaAi</text>
 </svg>`;
 
 const ogLogo = await sharp(svg, { density: 384 })
