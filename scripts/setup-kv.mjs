@@ -1,6 +1,6 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
-//  Author: Amir Parsa (امیر پارسا)
+//  ArenaAi — ArenaAi-v1.0.0
+//  Author: ArenaAi
 //  scripts/setup-kv.mjs — one-shot setup:
 //    1) creates the KV namespace DB via wrangler (no D1, no Python)
 //    2) writes its id into wrangler.toml (replacing the placeholder)
@@ -19,7 +19,7 @@ function run(cmd) {
 }
 
 async function main() {
-  console.log('\n🚀 Technamooz AI — Amaliyat-e Setup (امیر پارسا)');
+  console.log('\n🚀 ArenaAi — Amaliyat-e Setup (ArenaAi)');
   console.log('──────────────────────────────────────────────────');
 
   if (!existsSync(tomlPath)) {
