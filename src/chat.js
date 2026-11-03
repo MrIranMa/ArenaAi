@@ -91,7 +91,7 @@ function answerContract(deep) {
  * Build the provider messages with a strict context budget.
  * The newest turns are always kept; older turns are dropped first.
  */
-export function buildMessages({ persona, mind, userText, settings, deep }) {
+export function buildMessages({ persona, mind, userText, userContent, settings, deep }) {
   const system = buildSystemPrompt(persona, settings.extraInstructions, { deep }) +
     memoryBlock(mind, settings) +
     '\n\n【تاریخ】\nامروز ' + new Date().toISOString().slice(0, 10) + ' است.' +
@@ -118,7 +118,7 @@ export function buildMessages({ persona, mind, userText, settings, deep }) {
     messages.push({ role: 'user', content: r.q });
     messages.push({ role: 'assistant', content: r.a });
   }
-  messages.push({ role: 'user', content: String(userText).slice(0, LIMITS.messageMaxChars) });
+  messages.push({ role: 'user', content: userContent || String(userText).slice(0, LIMITS.messageMaxChars) });
   return messages;
 }
 
