@@ -1,5 +1,5 @@
 // ============================================================
-//  Technamooz AI — technamooz-ai-version1.0.0
+//  ArenaAi AI — technamooz-ai-version1.0.0
 //  Author: Amir Parsa (امیر پارسا)
 //  public/js/admin.js — secure admin panel (CSRF protected)
 // ============================================================
@@ -18,7 +18,7 @@
   ];
 
   const VIEW_META = {
-    overview: ['نمای کلی', 'وضعیت کلی تکناموز در یک نگاه'],
+    overview: ['نمای کلی', 'وضعیت کلی آرنا ای‌آی در یک نگاه'],
     keys: ['کلیدها و اتصال‌ها', 'مدیریت کلیدهای چهار پلتفرم و Cloudflare'],
     models: ['مدل‌ها', 'لیست واقعی مدل‌های هر پلتفرم'],
     telegram: ['ربات تلگرام', 'توکن، وبهوک، ادمین‌ها و ارسال همگانی'],
@@ -590,7 +590,7 @@
         '<section class="admin-card">' +
           '<div class="card-head"><h3>🧪 تست ربات</h3></div>' +
           '<p class="muted small">یک پیام آزمایشی به ادمین‌های ثبت‌شده می‌فرستد.</p>' +
-          '<label class="field"><span>متن پیام</span><input id="tgTestText" type="text" value="✅ پیام آزمایشی تکناموز — اتصال ربات برقرار است." /></label>' +
+          '<label class="field"><span>متن پیام</span><input id="tgTestText" type="text" value="✅ پیام آزمایشی آرنا ای‌آی — اتصال ربات برقرار است." /></label>' +
           '<div class="card-actions"><button class="btn primary tiny" type="button" data-tg-test>🧪 ارسال تست</button><span class="test-result" id="tg-test-result"></span></div>' +
         '</section>' +
         '<section class="admin-card wide">' +
