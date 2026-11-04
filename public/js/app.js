@@ -53,6 +53,7 @@
     lastAnswer: '',
     maintenance: false,
     pendingImages: [],
+    webSearch: false,
   };
 
   const els = {};
@@ -156,6 +157,7 @@
     els.attachmentInput = $('#attachmentInput');
     els.attachmentStatus = $('#attachmentStatus');
     els.btnVoice = $('#btnVoice');
+    els.btnWebSearch = $('#btnWebSearch');
     els.btnImage = $('#btnImage');
     els.btnSpeak = $('#btnSpeak');
     els.modalImage = $('#modalImage');
@@ -546,10 +548,43 @@
           reader.readAsDataURL(file);
         }).catch((e) => { toast(e.message, 'err'); return ''; });
         if (data) state.pendingImages.push({ name: file.name, type: file.type, data });
+      } else if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        if (file.size > 8 * 1024 * 1024) {
+          toast('حجم PDF باید حداکثر ۸ مگابایت باشد.', 'err');
+          continue;
+        }
+        try {
+          const pdfjs = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
+          pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
+          const buffer = await file.arrayBuffer();
+          const pdf = await pdfjs.getDocument({ data: buffer }).promise;
+          const pages = [];
+          const pageLimit = Math.min(pdf.numPages, 35);
+          for (let pageNo = 1; pageNo <= pageLimit; pageNo++) {
+            const page = await pdf.getPage(pageNo);
+            const content = await page.getTextContent();
+            const text = content.items.map((item) => item.str || '').join(' ');
+            if (text.trim()) pages.push('[صفحه ' + pageNo + '] ' + text);
+          }
+          const extracted = pages.join('\n');
+          if (!extracted.trim()) {
+            toast('از این PDF متنی استخراج نشد؛ ممکن است فایل اسکن‌شده باشد.', 'err');
+            continue;
+          }
+          const block = '\n\n--- متن استخراج‌شده از PDF: ' + file.name.replace(/[\\r\\n]/g, '') + ' ---\n' + extracted.slice(0, 50000) + '\n--- پایان PDF ---\n';
+          if (els.messageInput) {
+            els.messageInput.value = (els.messageInput.value || '') + block;
+            resizeInput();
+            updateCharCount();
+          }
+          toast('متن ' + pageLimit + ' صفحه از PDF استخراج شد.', 'ok');
+        } catch (error) {
+          toast('خواندن PDF ناموفق بود. اتصال اینترنت برای بارگذاری ابزار PDF را بررسی کن.', 'err');
+        }
       } else {
         const allowed = /\.(txt|md|json|csv|js|ts|py|html|css|xml|ya?ml|log)$/i.test(file.name);
         if (!allowed) {
-          toast('فعلاً فایل متنی و کدنویسی یا تصویر پشتیبانی می‌شود؛ PDF و Word هنوز فعال نیست.', 'err');
+          toast('این نوع فایل پشتیبانی نمی‌شود؛ تصویر، PDF یا فایل متنی انتخاب کن.', 'err');
           continue;
         }
         if (file.size > 200 * 1024) {
@@ -766,13 +801,27 @@
     state.abort = controller;
 
     try {
+      let messageForApi = regenerate ? state.lastUserText : text;
+      if (!regenerate && state.webSearch) {
+        setStreamState('در حال جست‌وجوی وب…', true);
+        const search = await api('/api/search?q=' + encodeURIComponent(text));
+        const results = (search.results || []).slice(0, 5);
+        if (results.length) {
+          const sourceText = results.map((item, index) =>
+            (index + 1) + '. ' + item.title + '\n' + item.snippet + '\nمنبع: ' + item.url
+          ).join('\n\n');
+          messageForApi += '\n\n【نتایج جست‌وجوی وب؛ پاسخ را بر اساس این منابع و با ذکر لینک‌ها بنویس】\n' + sourceText;
+        } else {
+          messageForApi += '\n\n【جست‌وجوی وب نتیجه‌ای پیدا نکرد؛ این موضوع را شفاف بگو و ادعای جست‌وجو نکن】';
+        }
+      }
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         signal: controller.signal,
         body: JSON.stringify({
-          message: regenerate ? state.lastUserText : text,
+          message: messageForApi,
           platform: state.platform,
           model: state.model,
           persona: state.persona,
@@ -1231,6 +1280,15 @@
       els.attachmentInput.addEventListener('change', handleAttachments);
     }
     if (els.btnVoice) els.btnVoice.addEventListener('click', startVoiceInput);
+    if (els.btnWebSearch) {
+      els.btnWebSearch.addEventListener('click', () => {
+        state.webSearch = !state.webSearch;
+        els.btnWebSearch.setAttribute('aria-pressed', String(state.webSearch));
+        els.btnWebSearch.textContent = state.webSearch ? '🌐 جست‌وجوی وب: روشن' : '🌐 جست‌وجوی وب: خاموش';
+        els.btnWebSearch.classList.toggle('active', state.webSearch);
+        toast(state.webSearch ? 'جست‌وجوی وب برای پیام بعدی فعال شد.' : 'جست‌وجوی وب خاموش شد.', 'ok');
+      });
+    }
     if (els.btnImage) els.btnImage.addEventListener('click', () => openModal('modalImage'));
     if (els.btnSpeak) els.btnSpeak.addEventListener('click', speakLastAnswer);
     if (els.imageForm) els.imageForm.addEventListener('submit', createImage);
