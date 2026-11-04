@@ -60,7 +60,7 @@ export async function handleUserApi(request, env, ctx) {
 function decodeSearchHtml(value) {
   return String(value || '').replace(/&amp;/g, '&').replace(/&quot;/g, '"')
     .replace(/&#x27;|&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();
+    .replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 async function searchWeb(query) {
@@ -74,15 +74,15 @@ async function searchWeb(query) {
   if (!response.ok) throw new Error('جست‌وجوی وب فعلاً پاسخ نمی‌دهد.');
   const html = await response.text();
   const results = [];
-  const blocks = html.match(/<div class="result[^"]*"[s\\S]*?<\\/div>\\s*<\\/div>/gi) || [];
+  const blocks = html.match(/<div class="result[^"]*"[^>]*>[\s\S]*?<\/div>\s*<\/div>/gi) || [];
   for (const block of blocks) {
-    const a = block.match(/<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\\s\\S]*?)<\\/a>/i);
-    const s = block.match(/<a[^>]*class="result__snippet"[^>]*>([\\s\\S]*?)<\\/a>|<div[^>]*class="result__snippet"[^>]*>([\\s\\S]*?)<\\/div>/i);
+    const a = block.match(/<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+    const s = block.match(/<a[^>]*class="result__snippet"[^>]*>([\s\S]*?)<\/a>|<div[^>]*class="result__snippet"[^>]*>([\s\S]*?)<\/div>/i);
     if (!a) continue;
     let href = decodeSearchHtml(a[1]);
     const uddg = href.match(/[?&]uddg=([^&]+)/);
     if (uddg) { try { href = decodeURIComponent(uddg[1]); } catch { /* keep original */ } }
-    if (!/^https?:\\/\\//i.test(href)) continue;
+    if (!/^https?:\/\//i.test(href)) continue;
     results.push({
       title: decodeSearchHtml(a[2]).slice(0, 180),
       url: href.slice(0, 1000),
