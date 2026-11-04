@@ -575,7 +575,7 @@
     els.attachmentStatus.textContent = count ? ('📎 ' + count + ' تصویر آمادهٔ ارسال') : '';
   }
 
-  function speakLastAnswer() {
+  async function speakLastAnswer() {
     if (!state.lastAnswer) {
       toast('هنوز پاسخی برای خواندن وجود ندارد.', 'err');
       return;
@@ -584,19 +584,76 @@
       toast('مرورگر شما پخش گفتار را پشتیبانی نمی‌کند.', 'err');
       return;
     }
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
+    const synth = window.speechSynthesis;
+    if (synth.speaking || synth.pending) {
+      synth.cancel();
+      state.speechQueue = [];
       if (els.btnSpeak) els.btnSpeak.textContent = '🔊 خواندن پاسخ';
       return;
     }
-    const utterance = new SpeechSynthesisUtterance(state.lastAnswer.slice(0, 12000));
-    utterance.lang = 'fa-IR';
-    utterance.rate = 1;
-    utterance.onend = utterance.onerror = () => {
-      if (els.btnSpeak) els.btnSpeak.textContent = '🔊 خواندن پاسخ';
+    let voices = synth.getVoices();
+    if (!voices.length) {
+      await new Promise((resolve) => {
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          synth.removeEventListener('voiceschanged', finish);
+          resolve();
+        };
+        synth.addEventListener('voiceschanged', finish);
+        window.setTimeout(finish, 1400);
+      });
+      voices = synth.getVoices();
+    }
+    const faVoices = voices.filter((v) => /^fa(?:-|$)/i.test(v.lang || '') || /persian|فارسی/i.test(v.name || ''));
+    if (!faVoices.length) {
+      toast('صدای فارسی روی دستگاه شما نصب نیست. در تنظیمات زبان ویندوز یک صدای Persian اضافه کنید و Chrome را دوباره باز کنید.', 'err');
+      return;
+    }
+    const voice = faVoices.find((v) => /natural|online|google|microsoft/i.test(v.name || '')) || faVoices[0];
+    const cleanText = String(state.lastAnswer)
+      .replace(/\x60[^\x60]*\x60/g, '$1')
+      .replace(/\x60\x60\x60[\s\S]*?\x60\x60\x60/g, ' کد ')
+      .replace(/https?:\/\/\S+/g, ' لینک ')
+      .replace(/[>#*_~|]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 12000);
+    const sentences = cleanText.match(/[^.!؟?؛\n]+[.!؟?؛]*/g) || [cleanText];
+    const queue = [];
+    let part = '';
+    for (const sentence of sentences) {
+      const next = (part ? part + ' ' : '') + sentence.trim();
+      if (next.length > 240 && part) {
+        queue.push(part);
+        part = sentence.trim();
+      } else part = next;
+    }
+    if (part) queue.push(part);
+    state.speechQueue = queue;
+    state.speechIndex = 0;
+    const speakNext = () => {
+      if (!state.speechQueue || state.speechIndex >= state.speechQueue.length) {
+        state.speechQueue = [];
+        if (els.btnSpeak) els.btnSpeak.textContent = '🔊 خواندن پاسخ';
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(state.speechQueue[state.speechIndex++]);
+      utterance.voice = voice;
+      utterance.lang = voice.lang || 'fa-IR';
+      utterance.rate = 0.94;
+      utterance.pitch = 1.02;
+      utterance.onend = speakNext;
+      utterance.onerror = () => {
+        state.speechQueue = [];
+        if (els.btnSpeak) els.btnSpeak.textContent = '🔊 خواندن پاسخ';
+        toast('پخش صدای فارسی متوقف شد. صدای انتخاب‌شده را در تنظیمات دستگاه بررسی کنید.', 'err');
+      };
+      synth.speak(utterance);
     };
     if (els.btnSpeak) els.btnSpeak.textContent = '⏹ توقف صدا';
-    window.speechSynthesis.speak(utterance);
+    speakNext();
   }
 
   async function createImage(event) {
