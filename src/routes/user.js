@@ -45,12 +45,69 @@ export async function handleUserApi(request, env, ctx) {
     if (path === '/api/reset' && method === 'POST') return resetMemory(request, env);
     if (path === '/api/feedback' && method === 'POST') return feedback(request, env);
     if (path === '/api/chat' && method === 'POST') return chat(request, env, ctx || {});
+    if (path === '/api/search' && method === 'GET') return webSearchApi(request, env, url);
     if (path === '/api/image' && method === 'POST') return generateImage(request, env);
 
     return jsonResp({ ok: false, error: 'مسیر API پیدا نشد.' }, 404);
   } catch (e) {
     await log(env, 'error', 'user api ' + path + ': ' + String((e && e.message) || e).slice(0, 220));
     return jsonResp({ ok: false, error: 'خطای داخلی سرور. لطفاً دوباره تلاش کنید.' }, 500);
+  }
+}
+
+/* ============================ free web search ============================ */
+
+function decodeSearchHtml(value) {
+  return String(value || '').replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+    .replace(/&#x27;|&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim();
+}
+
+async function searchWeb(query) {
+  const q = String(query || '').trim().slice(0, 240);
+  if (!q) return [];
+  const url = 'https://html.duckduckgo.com/html/?q=' + encodeURIComponent(q);
+  const response = await fetch(url, {
+    headers: { 'Accept': 'text/html', 'User-Agent': 'Mozilla/5.0 (compatible; ArenaAi/1.0; +https://workers.dev)' },
+    signal: AbortSignal.timeout(9000)
+  });
+  if (!response.ok) throw new Error('جست‌وجوی وب فعلاً پاسخ نمی‌دهد.');
+  const html = await response.text();
+  const results = [];
+  const blocks = html.match(/<div class="result[^"]*"[s\\S]*?<\\/div>\\s*<\\/div>/gi) || [];
+  for (const block of blocks) {
+    const a = block.match(/<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\\s\\S]*?)<\\/a>/i);
+    const s = block.match(/<a[^>]*class="result__snippet"[^>]*>([\\s\\S]*?)<\\/a>|<div[^>]*class="result__snippet"[^>]*>([\\s\\S]*?)<\\/div>/i);
+    if (!a) continue;
+    let href = decodeSearchHtml(a[1]);
+    const uddg = href.match(/[?&]uddg=([^&]+)/);
+    if (uddg) { try { href = decodeURIComponent(uddg[1]); } catch { /* keep original */ } }
+    if (!/^https?:\\/\\//i.test(href)) continue;
+    results.push({
+      title: decodeSearchHtml(a[2]).slice(0, 180),
+      url: href.slice(0, 1000),
+      snippet: decodeSearchHtml((s && (s[1] || s[2])) || '').slice(0, 360)
+    });
+    if (results.length >= 5) break;
+  }
+  return results;
+}
+
+async function webSearchApi(request, env, url) {
+  const settings = await getSettings(env);
+  const { uid, profile } = await webUser(request, env, settings);
+  if (profile.banned) return jsonResp({ ok: false, error: 'دسترسی شما مسدود شده است.' }, 403);
+  const query = String(url.searchParams.get('q') || '').trim();
+  if (query.length < 2) return jsonResp({ ok: false, error: 'عبارت جست‌وجو کوتاه است.' }, 400);
+  const limited = await rateLimit(env, 'search:' + uid, 10, 600);
+  if (!limited.ok) return jsonResp({ ok: false, error: 'سقف جست‌وجوی رایگان موقتاً پر شده است.' }, 429);
+  try {
+    const results = await searchWeb(query);
+    await bumpStat(env, 'web_searches');
+    return jsonResp({ ok: true, query, results });
+  } catch (error) {
+    await log(env, 'error', 'web search: ' + String(error.message || error).slice(0, 180));
+    return jsonResp({ ok: false, error: 'جست‌وجوی وب در دسترس نیست؛ کمی بعد دوباره تلاش کن.' }, 502);
   }
 }
 
