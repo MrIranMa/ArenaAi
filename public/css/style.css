@@ -1058,3 +1058,61 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   body::before, body::after { animation: none !important; }
 }
+
+
+/* ---------------- larger, fully visible composer tools ---------------- */
+.c-tools {
+  flex-wrap: wrap;
+  overflow: visible;
+  align-items: stretch;
+  gap: 8px;
+  padding: 4px 2px 10px;
+}
+.c-tools::-webkit-scrollbar { display: none; }
+.c-tools .tool-btn {
+  flex: 1 1 auto;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  line-height: 1.4;
+  padding: 7px 12px;
+}
+.c-tools .stream-state {
+  flex: 1 0 100%;
+  margin-inline-start: 0;
+  padding: 2px 4px;
+  min-height: 0;
+}
+@media (max-width: 640px) {
+  .dock {
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .composer {
+    padding: 9px 9px 8px;
+    border-radius: 13px;
+  }
+  .c-tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    max-height: min(34vh, 230px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .c-tools .tool-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    white-space: normal;
+    text-align: center;
+    font-size: 12px;
+    padding: 7px 6px;
+  }
+  .c-tools .stream-state {
+    grid-column: 1 / -1;
+  }
+  .c-row { gap: 7px; }
+  #messageInput { font-size: 14px; }
+}
