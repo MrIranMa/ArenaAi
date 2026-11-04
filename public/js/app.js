@@ -613,8 +613,8 @@
     }
     const voice = faVoices.find((v) => /natural|online|google|microsoft/i.test(v.name || '')) || faVoices[0];
     const cleanText = String(state.lastAnswer)
-      .replace(/\x60[^\x60]*\x60/g, '$1')
       .replace(/\x60\x60\x60[\s\S]*?\x60\x60\x60/g, ' کد ')
+      .replace(/\x60([^\x60]*)\x60/g, '$1')
       .replace(/https?:\/\/\S+/g, ' لینک ')
       .replace(/[>#*_~|]/g, ' ')
       .replace(/\s+/g, ' ')
