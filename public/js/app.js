@@ -820,6 +820,7 @@
     const bot = appendMessage('bot', '', {}); setBotTyping(bot);
     if (images && images.length) {
       setBotFinal(bot, '⚠️ در حال حاضر ساخت پروژه از روی تصویر پیوست‌شده پشتیبانی نمی‌شود. لطفاً فایل‌های متنی یا کد را پیوست کن.');
+      state.pendingImages = []; renderAttachmentStatus();
       return;
     }
     if (prompt.length < 8) {
