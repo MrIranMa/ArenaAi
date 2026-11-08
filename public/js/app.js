@@ -159,25 +159,7 @@
     els.attachmentStatus = $('#attachmentStatus');
     els.btnVoice = $('#btnVoice');
     els.btnWebSearch = $('#btnWebSearch');
-    els.btnImage = $('#btnImage');
-    els.btnProject = $('#btnProject');
-    els.modalProject = $('#modalProject');
-    els.projectForm = $('#projectForm');
-    els.projectPrompt = $('#projectPrompt');
-    els.projectStatus = $('#projectStatus');
-    els.projectModelLabel = $('#projectModelLabel');
-    els.btnBuildProject = $('#btnBuildProject');
-    els.projectResults = $('#projectResults');
-    els.projectResultName = $('#projectResultName');
-    els.projectSummary = $('#projectSummary');
-    els.projectFileList = $('#projectFileList');
-    els.btnProjectZip = $('#btnProjectZip');
     els.btnSpeak = $('#btnSpeak');
-    els.modalImage = $('#modalImage');
-    els.imageForm = $('#imageForm');
-    els.imagePrompt = $('#imagePrompt');
-    els.imageMsg = $('#imageMsg');
-    els.btnCreateImage = $('#btnCreateImage');
     els.btnSend = $('#btnSend');
     els.btnStop = $('#btnStop');
     els.btnDeep = $('#btnDeep');
@@ -224,31 +206,6 @@
 
 
   /* ============================ project builder + downloads ============================ */
-
-  async function buildProject(event) {
-    event.preventDefault();
-    const prompt = (els.projectPrompt && els.projectPrompt.value || '').trim();
-    if (prompt.length < 8) { toast('شرح پروژه را کامل‌تر بنویس.', 'err'); return; }
-    if (!state.model || !state.platform) { toast('ابتدا یک مدل انتخاب کن.', 'err'); return; }
-    if (els.btnBuildProject) { els.btnBuildProject.disabled = true; els.btnBuildProject.textContent = 'در حال ساخت فایل‌ها…'; }
-    if (els.projectResults) els.projectResults.hidden = true;
-    if (els.projectStatus) els.projectStatus.textContent = 'مدل ' + (state.modelName || state.model) + ' در حال ساخت کل پروژه است؛ لطفاً صفحه را نبند.';
-    try {
-      const result = await api('/api/project', { method: 'POST', body: {
-        prompt, platform: state.platform, model: state.model, persona: state.persona, deep: state.deep
-      }});
-      if (!result || !Array.isArray(result.files) || !result.files.length) throw new Error('مدل فایل معتبری تحویل نداد.');
-      state.currentProject = result;
-      renderProjectFiles(result);
-      if (els.projectStatus) els.projectStatus.textContent = 'ساخت با مدل ' + result.model + ' از ' + result.platform + ' کامل شد.';
-      toast('پروژه با ' + result.files.length + ' فایل ساخته شد.', 'ok');
-    } catch (error) {
-      if (els.projectStatus) els.projectStatus.textContent = String(error.message || error);
-      toast(String(error.message || error), 'err');
-    } finally {
-      if (els.btnBuildProject) { els.btnBuildProject.disabled = false; els.btnBuildProject.textContent = 'ساخت کامل پروژه'; }
-    }
-  }
 
   function renderProjectFiles(project) {
     if (!els.projectResults || !els.projectFileList) return;
@@ -812,44 +769,6 @@
     speakNext();
   }
 
-  async function createImage(event) {
-    event.preventDefault();
-    const prompt = String(els.imagePrompt && els.imagePrompt.value || '').trim();
-    if (prompt.length < 3) {
-      if (els.imageMsg) els.imageMsg.textContent = 'توضیح تصویر کوتاه است.';
-      return;
-    }
-    if (els.btnCreateImage) {
-      els.btnCreateImage.disabled = true;
-      els.btnCreateImage.textContent = 'در حال ساخت تصویر…';
-    }
-    if (els.imageMsg) els.imageMsg.textContent = 'ممکن است ساخت تصویر کمی زمان ببرد.';
-    try {
-      const result = await api('/api/image', { method: 'POST', body: { prompt } });
-      if (!result || !result.image) throw new Error('سرویس تصویر خروجی معتبری برنگرداند.');
-      closeModal('modalImage');
-      const item = appendMessage('bot', 'تصویر ساخته‌شده با ArenaAi', {});
-      const img = document.createElement('img');
-      img.className = 'generated-image';
-      img.alt = 'تصویر ساخته‌شده با هوش مصنوعی';
-      img.loading = 'lazy';
-      img.src = result.image;
-      item._body.appendChild(img);
-      if (els.imagePrompt) els.imagePrompt.value = '';
-      if (els.imageMsg) els.imageMsg.textContent = 'تصویر آماده شد.';
-      scrollBottom(true);
-      toast('تصویر با موفقیت ساخته شد.', 'ok');
-    } catch (error) {
-      if (els.imageMsg) els.imageMsg.textContent = String(error && error.message || 'ساخت تصویر ناموفق بود.');
-      toast(String(error && error.message || 'ساخت تصویر ناموفق بود.'), 'err');
-    } finally {
-      if (els.btnCreateImage) {
-        els.btnCreateImage.disabled = false;
-        els.btnCreateImage.textContent = 'ساخت تصویر';
-      }
-    }
-  }
-
   function startVoiceInput() {
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Recognition) {
@@ -886,6 +805,75 @@
 
   /* ============================ send / stream ============================ */
 
+  function detectChatIntent(text, hasImages) {
+    const value = String(text || '').toLowerCase();
+    const project = /(ساخت|بساز|طراحی|پیاده.?سازی|برنامه.?نویسی|کدنویسی|پروژه|وب.?سایت|سایت|فروشگاه|ربات|اپلیکیشن|لانچر|پنل).{0,70}(کامل|پروژه|سایت|وب|فروشگاه|ربات|اپلیکیشن|بساز|طراحی|ایجاد|درست|پیاده)|(?:build|create|make|develop|design).{0,70}(website|web app|site|project|bot|application|app|launcher|dashboard)/i.test(value);
+    const image = /(عکس|تصویر|پوستر|لوگو|والپیپر|نقاشی|تصویرسازی|image|picture|illustration|wallpaper|logo).{0,55}(بساز|ایجاد|تولید|درست|طراحی|تغییر|ویرایش|کارتونی|رندر|generate|create|make|edit|change|redraw)|(?:بساز|تولید|ایجاد|ویرایش|تغییر|کارتونی|generate|create|edit|redraw).{0,55}(عکس|تصویر|پوستر|لوگو|image|picture)/i.test(value);
+    if (image) return 'image';
+    if (project) return 'project';
+    if (hasImages && /(تغییر|ویرایش|ادیت|کارتونی|حذف|اضافه|edit|change|remove|add|cartoon)/i.test(value)) return 'image';
+    return 'chat';
+  }
+
+  async function buildProjectInChat(prompt, images) {
+    if (images && images.length) throw new Error('برای ساخت پروژه، فایل‌های متنی را با دکمه پیوست اضافه کن؛ تصویر پیوست‌شده به‌تنهایی پروژه نیست.');
+    if (prompt.length < 8) throw new Error('شرح پروژه را کامل‌تر بنویس.');
+    appendMessage('user', prompt, {});
+    const bot = appendMessage('bot', '', {}); setBotTyping(bot);
+    state.streaming = true; setComposerState(); setStreamState('در حال ساخت فایل‌های پروژه با مدل انتخاب‌شده…', true);
+    try {
+      const result = await api('/api/project', { method: 'POST', body: {
+        prompt, platform: state.platform, model: state.model, persona: state.persona, deep: state.deep
+      }});
+      if (!result || !Array.isArray(result.files) || !result.files.length) throw new Error('مدل فایل معتبری تحویل نداد.');
+      state.currentProject = result;
+      const summary = '## ' + (result.name || 'پروژه آماده شد') + '\n\n' +
+        (result.summary || 'فایل‌های پروژه ساخته شدند.') + '\n\n' +
+        '**مدل استفاده‌شده:** ' + result.model + ' (' + result.platform + ')\n\n' +
+        '**تعداد فایل‌ها:** ' + result.files.length;
+      setBotFinal(bot, summary);
+      const area = document.createElement('div'); area.className = 'project-chat-files';
+      const zip = document.createElement('button'); zip.type = 'button'; zip.className = 'btn primary'; zip.textContent = '⬇ دانلود ZIP کامل پروژه';
+      zip.addEventListener('click', downloadProjectZip); area.appendChild(zip);
+      const list = document.createElement('div'); list.className = 'project-file-list';
+      result.files.forEach(file => {
+        const row = document.createElement('div'); row.className = 'project-file-row';
+        const name = document.createElement('code'); name.textContent = file.path;
+        const dl = document.createElement('button'); dl.type = 'button'; dl.className = 'mini-btn'; dl.textContent = 'دانلود';
+        dl.addEventListener('click', () => downloadTextFile(file.path, file.content));
+        row.append(name, dl); list.appendChild(row);
+      });
+      area.appendChild(list); bot._body.appendChild(area);
+      toast('پروژه و ' + result.files.length + ' فایل آماده شد.', 'ok');
+      state.lastUserText = prompt; state.lastAnswer = summary;
+    } catch (error) {
+      setBotFinal(bot, '⚠️ ' + String(error.message || error));
+      toast(String(error.message || error), 'err');
+    } finally {
+      state.streaming = false; setComposerState(); setStreamState(''); messageInputFocus();
+    }
+  }
+
+  async function generateImageInChat(prompt, images) {
+    const userText = prompt || (images.length ? 'این تصویر را ویرایش کن.' : '');
+    appendMessage('user', userText + (images.length ? '\n📎 ' + images.length + ' تصویر پیوست شد' : ''), {});
+    const bot = appendMessage('bot', '', {}); setBotTyping(bot);
+    state.streaming = true; setComposerState(); setStreamState('در حال بررسی قابلیت تصویر مدل انتخاب‌شده…', true);
+    try {
+      const result = await api('/api/image', { method: 'POST', body: {
+        prompt: userText, platform: state.platform, model: state.model, persona: state.persona, deep: state.deep
+      }});
+      if (!result || !result.image) throw new Error('مدل خروجی تصویر معتبر برنگرداند.');
+      const img = document.createElement('img'); img.className = 'generated-image'; img.alt = 'تصویر تولیدشده'; img.src = result.image;
+      bot._body.appendChild(img);
+    } catch (error) {
+      setBotFinal(bot, '⚠️ ' + String(error.message || error));
+      toast(String(error.message || error), 'err');
+    } finally {
+      state.streaming = false; state.pendingImages = []; renderAttachmentStatus(); setComposerState(); setStreamState(''); messageInputFocus();
+    }
+  }
+
   async function sendMessage(rawText, options = {}) {
     let text = String(rawText == null ? '' : rawText).trim();
     const images = state.pendingImages.slice(0, 2);
@@ -896,6 +884,18 @@
         openModelModal();
       }
       return;
+    }
+
+    if (!options.regenerate) {
+      const intent = detectChatIntent(text, images.length > 0);
+      if (intent === 'project') {
+        if (els.messageInput) { els.messageInput.value = ''; resizeInput(); updateCharCount(); }
+        return buildProjectInChat(text, images);
+      }
+      if (intent === 'image') {
+        if (els.messageInput) { els.messageInput.value = ''; resizeInput(); updateCharCount(); }
+        return generateImageInChat(text, images);
+      }
     }
 
     let regenerate = !!options.regenerate;
@@ -1410,15 +1410,7 @@
         toast(state.webSearch ? 'جست‌وجوی وب برای پیام بعدی فعال شد.' : 'جست‌وجوی وب خاموش شد.', 'ok');
       });
     }
-    if (els.btnImage) els.btnImage.addEventListener('click', () => openModal('modalImage'));
-    if (els.btnProject) els.btnProject.addEventListener('click', () => {
-      if (els.projectModelLabel) els.projectModelLabel.textContent = state.modelName || state.model || 'مدل انتخاب نشده';
-      openModal('modalProject');
-    });
-    if (els.projectForm) els.projectForm.addEventListener('submit', buildProject);
-    if (els.btnProjectZip) els.btnProjectZip.addEventListener('click', downloadProjectZip);
     if (els.btnSpeak) els.btnSpeak.addEventListener('click', speakLastAnswer);
-    if (els.imageForm) els.imageForm.addEventListener('submit', createImage);
     if (els.messageInput) {
       els.messageInput.addEventListener('input', () => {
         resizeInput();
