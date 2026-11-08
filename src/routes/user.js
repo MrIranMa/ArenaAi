@@ -45,6 +45,7 @@ export async function handleUserApi(request, env, ctx) {
     if (path === '/api/reset' && method === 'POST') return resetMemory(request, env);
     if (path === '/api/feedback' && method === 'POST') return feedback(request, env);
     if (path === '/api/chat' && method === 'POST') return chat(request, env, ctx || {});
+    if (path === '/api/project' && method === 'POST') return buildProject(request, env);
     if (path === '/api/search' && method === 'GET') return webSearchApi(request, env, url);
     if (path === '/api/image' && method === 'POST') return generateImage(request, env);
 
@@ -371,6 +372,102 @@ async function generateImage(request, env) {
   } catch (error) {
     await log(env, 'error', 'image generation: ' + String((error && error.message) || error).slice(0, 220));
     return jsonResp({ ok: false, error: 'ساخت تصویر انجام نشد؛ دسترسی مدل FLUX در Cloudflare Workers AI را بررسی کن.' }, 502);
+  }
+}
+
+/* ============================ project builder ============================ */
+async function buildProject(request, env) {
+  const settings = await getSettings(env);
+  const { uid, profile } = await webUser(request, env, settings);
+  if (profile.banned) return jsonResp({ ok: false, error: 'دسترسی شما مسدود شده است.' }, 403);
+  if (settings.maintenance) return jsonResp({ ok: false, error: 'سرویس در حالت تعمیر است.' }, 503);
+  let body;
+  try { body = await request.json(); } catch { return jsonResp({ ok: false, error: 'درخواست نامعتبر است.' }, 400); }
+  const prompt = sanitizeUserText(body.prompt || '');
+  if (prompt.length < 8 || prompt.length > 7000) return jsonResp({ ok: false, error: 'شرح پروژه باید بین ۸ تا ۷۰۰۰ نویسه باشد.' }, 400);
+  const limited = await rateLimit(env, 'project:' + uid, 2, 3600);
+  if (!limited.ok) return jsonResp({ ok: false, error: 'سهمیه ساخت پروژه پر شده است؛ یک ساعت دیگر دوباره تلاش کن.' }, 429);
+  const selection = resolveSelection({
+    platform: body.platform || profile.platform, model: body.model || profile.model,
+    persona: body.persona || profile.persona, deep: body.deep != null ? body.deep : profile.deep
+  }, settings);
+  if (!isModelId(selection.model)) return jsonResp({ ok: false, error: 'مدل انتخاب‌شده معتبر نیست.' }, 400);
+  const system = [
+    'You are ArenaAi Project Builder. Build complete, runnable software projects.',
+    'Return ONLY one valid JSON object with schema {"name":"project name","summary":"summary","files":[{"path":"relative/path","content":"complete file text"}]}.',
+    'Include every required source, config, and documentation file. No placeholders, TODOs, ellipses, or missing essential code.',
+    'Use relative paths only. Never create absolute paths, ../ segments, secrets, .env credentials, binaries, or node_modules.',
+    'Maximum 35 files and 450000 total source characters. Include README with exact run instructions.',
+    'Make sensible assumptions and deliver the best complete implementation without asking questions.',
+    'The selected model must perform the entire implementation. Do not delegate.'
+  ].join('\n');
+  let started;
+  try {
+    started = await startCompletion(env, {
+      ...selection,
+      messages: [{ role: 'system', content: system }, { role: 'user', content: 'Build this project completely:\n\n' + prompt }],
+      maxTokens: 12000, temperature: 0.2, allowFallback: false
+    });
+  } catch (e) {
+    await log(env, 'error', 'project start: ' + String((e && e.message) || e).slice(0, 200));
+    return jsonResp({ ok: false, error: describeProviderError(e) }, 502);
+  }
+  try {
+    const reader = started.stream.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '', answer = '';
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let nl;
+      while ((nl = buffer.indexOf('\n')) >= 0) {
+        const line = buffer.slice(0, nl).trim(); buffer = buffer.slice(nl + 1);
+        if (!line) continue;
+        let frame; try { frame = JSON.parse(line); } catch { continue; }
+        if (frame.type === 'delta' && frame.v) {
+          answer += frame.v;
+          if (answer.length > 600000) throw new Error('خروجی پروژه بیش از حد بزرگ شد.');
+        }
+        if (frame.type === 'error') throw new Error(frame.msg || 'مدل در ساخت پروژه خطا داد.');
+      }
+    }
+    if (buffer.trim()) {
+      try {
+        const frame = JSON.parse(buffer.trim());
+        if (frame.type === 'delta' && frame.v) answer += frame.v;
+        if (frame.type === 'error') throw new Error(frame.msg || 'مدل خطا داد.');
+      } catch (e) { if (e && e.message && e.message !== 'Unexpected end of JSON input') throw e; }
+    }
+    const clean = answer.trim().replace(/^\x60{3}(?:json)?\s*/i, '').replace(/\s*\x60{3}$/, '');
+    const first = clean.indexOf('{'), last = clean.lastIndexOf('}');
+    if (first < 0 || last <= first) throw new Error('مدل خروجی JSON کامل نساخت؛ با شرح کوتاه‌تر دوباره تلاش کن.');
+    const project = JSON.parse(clean.slice(first, last + 1));
+    if (!Array.isArray(project.files) || !project.files.length || project.files.length > 35) throw new Error('ساختار فایل‌های پروژه معتبر نیست.');
+    let total = 0;
+    const seen = new Set(), files = [];
+    for (const file of project.files) {
+      const path = String(file && file.path || '').replace(/\\/g, '/').trim();
+      const text = String(file && file.content != null ? file.content : '');
+      if (!path || path.length > 180 || path.startsWith('/') || /^[a-z]:/i.test(path) ||
+          path.split('/').some(part => !part || part === '.' || part === '..') ||
+          /[\u0000-\u001f]/.test(path) || seen.has(path)) throw new Error('مسیر فایل نامعتبر یا تکراری است: ' + path.slice(0, 80));
+      if (text.length > 100000) throw new Error('یکی از فایل‌ها بیش از حد بزرگ است: ' + path);
+      total += text.length;
+      if (total > 450000) throw new Error('حجم کل پروژه بیش از حد مجاز است.');
+      seen.add(path); files.push({ path, content: text });
+    }
+    if (!files.some(f => /(^|\/)readme(?:\.md)?$/i.test(f.path))) {
+      files.push({ path: 'README.md', content: '# ' + String(project.name || 'ArenaAi Project') + '\n\n' + String(project.summary || 'پروژه ساخته‌شده با ArenaAi') + '\n' });
+    }
+    await bumpStat(env, 'project_builds');
+    await log(env, 'project', 'web ' + uid.slice(0, 8) + ' built ' + files.length + ' files using ' + started.used.platform + '/' + started.used.model);
+    return jsonResp({ ok: true, name: String(project.name || 'ArenaAi Project').slice(0, 100),
+      summary: String(project.summary || '').slice(0, 1000), files,
+      model: started.used.model, platform: started.used.platform });
+  } catch (e) {
+    await log(env, 'error', 'project parse: ' + String((e && e.message) || e).slice(0, 220));
+    return jsonResp({ ok: false, error: String((e && e.message) || 'ساخت پروژه ناموفق بود.').slice(0, 500) }, 502);
   }
 }
 
