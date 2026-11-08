@@ -54,6 +54,7 @@
     maintenance: false,
     pendingImages: [],
     webSearch: false,
+    currentProject: null,
   };
 
   const els = {};
@@ -159,6 +160,18 @@
     els.btnVoice = $('#btnVoice');
     els.btnWebSearch = $('#btnWebSearch');
     els.btnImage = $('#btnImage');
+    els.btnProject = $('#btnProject');
+    els.modalProject = $('#modalProject');
+    els.projectForm = $('#projectForm');
+    els.projectPrompt = $('#projectPrompt');
+    els.projectStatus = $('#projectStatus');
+    els.projectModelLabel = $('#projectModelLabel');
+    els.btnBuildProject = $('#btnBuildProject');
+    els.projectResults = $('#projectResults');
+    els.projectResultName = $('#projectResultName');
+    els.projectSummary = $('#projectSummary');
+    els.projectFileList = $('#projectFileList');
+    els.btnProjectZip = $('#btnProjectZip');
     els.btnSpeak = $('#btnSpeak');
     els.modalImage = $('#modalImage');
     els.imageForm = $('#imageForm');
@@ -209,6 +222,114 @@
     return data;
   }
 
+
+  /* ============================ project builder + downloads ============================ */
+
+  async function buildProject(event) {
+    event.preventDefault();
+    const prompt = (els.projectPrompt && els.projectPrompt.value || '').trim();
+    if (prompt.length < 8) { toast('شرح پروژه را کامل‌تر بنویس.', 'err'); return; }
+    if (!state.model || !state.platform) { toast('ابتدا یک مدل انتخاب کن.', 'err'); return; }
+    if (els.btnBuildProject) { els.btnBuildProject.disabled = true; els.btnBuildProject.textContent = 'در حال ساخت فایل‌ها…'; }
+    if (els.projectResults) els.projectResults.hidden = true;
+    if (els.projectStatus) els.projectStatus.textContent = 'مدل ' + (state.modelName || state.model) + ' در حال ساخت کل پروژه است؛ لطفاً صفحه را نبند.';
+    try {
+      const result = await api('/api/project', { method: 'POST', body: {
+        prompt, platform: state.platform, model: state.model, persona: state.persona, deep: state.deep
+      }});
+      if (!result || !Array.isArray(result.files) || !result.files.length) throw new Error('مدل فایل معتبری تحویل نداد.');
+      state.currentProject = result;
+      renderProjectFiles(result);
+      if (els.projectStatus) els.projectStatus.textContent = 'ساخت با مدل ' + result.model + ' از ' + result.platform + ' کامل شد.';
+      toast('پروژه با ' + result.files.length + ' فایل ساخته شد.', 'ok');
+    } catch (error) {
+      if (els.projectStatus) els.projectStatus.textContent = String(error.message || error);
+      toast(String(error.message || error), 'err');
+    } finally {
+      if (els.btnBuildProject) { els.btnBuildProject.disabled = false; els.btnBuildProject.textContent = 'ساخت کامل پروژه'; }
+    }
+  }
+
+  function renderProjectFiles(project) {
+    if (!els.projectResults || !els.projectFileList) return;
+    els.projectResults.hidden = false;
+    if (els.projectResultName) els.projectResultName.textContent = project.name || 'پروژه آماده است';
+    if (els.projectSummary) els.projectSummary.textContent = project.summary || '';
+    els.projectFileList.innerHTML = '';
+    project.files.forEach((file, index) => {
+      const row = document.createElement('div');
+      row.className = 'project-file-row';
+      const name = document.createElement('code');
+      name.textContent = file.path;
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'mini-btn'; button.textContent = 'دانلود';
+      button.addEventListener('click', () => downloadTextFile(file.path, file.content));
+      row.append(name, button);
+      els.projectFileList.appendChild(row);
+    });
+  }
+
+  function downloadTextFile(path, content) {
+    const blob = new Blob([String(content)], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = path.split('/').pop() || 'file.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  function crc32(bytes) {
+    let crc = -1;
+    for (let i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (let j = 0; j < 8; j++) crc = (crc >>> 1) ^ (-(crc & 1) & 0xEDB88320);
+    }
+    return (crc ^ -1) >>> 0;
+  }
+
+  function zipProject(files) {
+    const encoder = new TextEncoder();
+    const localParts = [], centralParts = [];
+    let offset = 0;
+    const u16 = (n) => new Uint8Array([n & 255, (n >>> 8) & 255]);
+    const u32 = (n) => new Uint8Array([n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255]);
+    const join = (parts) => {
+      const size = parts.reduce((sum, part) => sum + part.length, 0);
+      const out = new Uint8Array(size); let at = 0;
+      parts.forEach(part => { out.set(part, at); at += part.length; });
+      return out;
+    };
+    files.forEach(file => {
+      const name = encoder.encode(file.path);
+      const data = encoder.encode(file.content);
+      const crc = crc32(data);
+      const local = join([
+        u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(0), u16(0),
+        u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), name, data
+      ]);
+      const central = join([
+        u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(0), u16(0),
+        u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0),
+        u16(0), u16(0), u16(0), u32(0), u32(offset), name
+      ]);
+      localParts.push(local); centralParts.push(central); offset += local.length;
+    });
+    const central = join(centralParts);
+    const end = join([u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length),
+      u32(central.length), u32(offset), u16(0)]);
+    return new Blob([...localParts, central, end], { type: 'application/zip' });
+  }
+
+  function downloadProjectZip() {
+    const project = state.currentProject;
+    if (!project || !project.files || !project.files.length) { toast('پروژه‌ای برای دانلود وجود ندارد.', 'err'); return; }
+    const blob = zipProject(project.files);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = (String(project.name || 'ArenaAi-Project').replace(/[^\w\u0600-\u06FF-]+/g, '-').slice(0, 60) || 'ArenaAi-Project') + '.zip';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
 
   /* ============================ theme menu ============================ */
 
@@ -1290,6 +1411,12 @@
       });
     }
     if (els.btnImage) els.btnImage.addEventListener('click', () => openModal('modalImage'));
+    if (els.btnProject) els.btnProject.addEventListener('click', () => {
+      if (els.projectModelLabel) els.projectModelLabel.textContent = state.modelName || state.model || 'مدل انتخاب نشده';
+      openModal('modalProject');
+    });
+    if (els.projectForm) els.projectForm.addEventListener('submit', buildProject);
+    if (els.btnProjectZip) els.btnProjectZip.addEventListener('click', downloadProjectZip);
     if (els.btnSpeak) els.btnSpeak.addEventListener('click', speakLastAnswer);
     if (els.imageForm) els.imageForm.addEventListener('submit', createImage);
     if (els.messageInput) {
