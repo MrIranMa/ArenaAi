@@ -816,10 +816,16 @@
   }
 
   async function buildProjectInChat(prompt, images) {
-    if (images && images.length) throw new Error('برای ساخت پروژه، فایل‌های متنی را با دکمه پیوست اضافه کن؛ تصویر پیوست‌شده به‌تنهایی پروژه نیست.');
-    if (prompt.length < 8) throw new Error('شرح پروژه را کامل‌تر بنویس.');
-    appendMessage('user', prompt, {});
+    appendMessage('user', prompt + (images && images.length ? '\n📎 ' + images.length + ' تصویر پیوست شد' : ''), {});
     const bot = appendMessage('bot', '', {}); setBotTyping(bot);
+    if (images && images.length) {
+      setBotFinal(bot, '⚠️ در حال حاضر ساخت پروژه از روی تصویر پیوست‌شده پشتیبانی نمی‌شود. لطفاً فایل‌های متنی یا کد را پیوست کن.');
+      return;
+    }
+    if (prompt.length < 8) {
+      setBotFinal(bot, '⚠️ شرح پروژه را کامل‌تر بنویس.');
+      return;
+    }
     state.streaming = true; setComposerState(); setStreamState('در حال ساخت فایل‌های پروژه با مدل انتخاب‌شده…', true);
     try {
       const result = await api('/api/project', { method: 'POST', body: {
