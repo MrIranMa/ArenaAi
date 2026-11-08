@@ -77,8 +77,8 @@
         <input id="attachmentInput" type="file" accept="image/png,image/jpeg,image/webp,application/pdf,.pdf,.txt,.md,.json,.csv,.js,.ts,.py,.html,.css,.xml,.yaml,.yml,.log" multiple hidden />
         <button id="btnVoice" class="tool-btn" type="button" title="تبدیل گفتار به متن">🎙 ورودی صوتی</button>
         <button id="btnWebSearch" class="tool-btn" type="button" title="جست‌وجوی منابع وب هنگام ارسال پیام" aria-pressed="false">🌐 جست‌وجوی وب: خاموش</button>
-        <button id="btnImage" class="tool-btn" type="button" title="ساخت تصویر با هوش مصنوعی">🎨 ساخت تصویر</button>
-        <button id="btnProject" class="tool-btn" type="button" title="ساخت پروژه کامل و دریافت ZIP">🧰 ساخت پروژه</button>
+        
+        
         <button id="btnSpeak" class="tool-btn" type="button" title="خواندن پاسخ آخر با صدا">🔊 خواندن پاسخ</button>
         <span id="attachmentStatus" class="stream-state" aria-live="polite"></span>
         <button id="btnDeep" class="tool-btn" type="button" title="پاسخ بلندتر، عمیق‌تر و حسابرسی‌شده">
@@ -162,42 +162,6 @@
           <button type="button" data-reset="all" class="reset-row danger"><b>فراموشی کامل</b><span>کل حافظهٔ این حساب پاک می‌شود — برگشت‌پذیر نیست</span></button>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div id="modalImage" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="imageTitle">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3 id="imageTitle">ساخت تصویر با ArenaAi</h3>
-        <button class="icon-btn" type="button" data-close="modalImage" title="بستن">✕</button>
-      </div>
-      <form id="imageForm" class="modal-body">
-        <label class="fb-label" for="imagePrompt">توضیح تصویر موردنظر</label>
-        <textarea id="imagePrompt" rows="4" maxlength="1200" required placeholder="مثلاً: یک شهر آینده‌نگر با نورهای نئونی، نمای سینمایی…"></textarea>
-        <p id="imageMsg" class="mini-note" aria-live="polite">تولید تصویر از طریق Cloudflare Workers AI انجام می‌شود و به فعال بودن AI Binding نیاز دارد.</p>
-        <button id="btnCreateImage" class="btn primary" type="submit">ساخت تصویر</button>
-      </form>
-    </div>
-  </div>
-
-  <div id="modalProject" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="projectTitle">
-    <div class="modal-card project-modal-card">
-      <div class="modal-head">
-        <h3 id="projectTitle">ساخت پروژه با مدل انتخاب‌شده</h3>
-        <button class="icon-btn" type="button" data-close="modalProject" title="بستن">✕</button>
-      </div>
-      <form id="projectForm" class="modal-body">
-        <p class="modal-lede">همین مدل فعال، تمام فایل‌های پروژه را می‌سازد. در پایان می‌توانی ZIP کامل یا هر فایل را جداگانه دریافت کنی.</p>
-        <label class="fb-label" for="projectPrompt">چه چیزی بسازم؟</label>
-        <textarea id="projectPrompt" rows="7" maxlength="7000" required placeholder="مثلاً: یک سایت فروشگاهی فارسی با Node.js، پنل مدیریت، دیتابیس SQLite، ورود امن، سبد خرید و راهنمای نصب کامل بساز..."></textarea>
-        <p id="projectStatus" class="mini-note" aria-live="polite">مدل انتخاب‌شده: <b id="projectModelLabel">—</b>. حداکثر ۲ ساخت پروژه در ساعت.</p>
-        <button id="btnBuildProject" class="btn primary" type="submit">ساخت کامل پروژه</button>
-        <section id="projectResults" class="project-results" hidden>
-          <div class="project-result-head"><b id="projectResultName">پروژه آماده است</b><button id="btnProjectZip" class="btn primary" type="button">دانلود ZIP پروژه</button></div>
-          <p id="projectSummary" class="mini-note"></p>
-          <div id="projectFileList" class="project-file-list"></div>
-        </section>
-      </form>
     </div>
   </div>
 
