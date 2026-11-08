@@ -347,32 +347,25 @@ async function feedback(request, env) {
 /* ============================ image generation ============================ */
 
 async function generateImage(request, env) {
-  const { uid, profile } = await webUser(request, env, await getSettings(env));
+  const settings = await getSettings(env);
+  const { uid, profile } = await webUser(request, env, settings);
   if (profile.banned) return jsonResp({ ok: false, error: 'دسترسی شما مسدود شده است.' }, 403);
-  if (!env.AI || typeof env.AI.run !== 'function') {
-    return jsonResp({ ok: false, error: 'اتصال Cloudflare Workers AI فعال نیست. ابتدا AI Binding را در تنظیمات Worker فعال کن.' }, 503);
-  }
   let body;
   try { body = await request.json(); } catch { return jsonResp({ ok: false, error: 'درخواست JSON معتبر نیست.' }, 400); }
   const prompt = sanitizeUserText(body.prompt || '');
-  if (prompt.length < 3 || prompt.length > 1200) {
-    return jsonResp({ ok: false, error: 'توضیح تصویر باید بین ۳ تا ۱۲۰۰ نویسه باشد.' }, 400);
-  }
-  const limited = await rateLimit(env, 'image:' + uid, 3, 3600);
-  if (!limited.ok) return jsonResp({ ok: false, error: 'سهمیهٔ ساخت تصویر پر شده است؛ یک ساعت دیگر دوباره تلاش کن.' }, 429);
-  try {
-    const result = await env.AI.run('@cf/black-forest-labs/flux-1-schnell', { prompt });
-    const encoded = result && (result.image || result.data && result.data[0]);
-    if (!encoded || typeof encoded !== 'string') {
-      throw new Error('مدل تصویر خروجی Base64 معتبر برنگرداند.');
-    }
-    await bumpStat(env, 'image_generations');
-    await log(env, 'image', 'web ' + uid.slice(0, 8) + ' generated an image');
-    return jsonResp({ ok: true, image: 'data:image/jpeg;base64,' + encoded });
-  } catch (error) {
-    await log(env, 'error', 'image generation: ' + String((error && error.message) || error).slice(0, 220));
-    return jsonResp({ ok: false, error: 'ساخت تصویر انجام نشد؛ دسترسی مدل FLUX در Cloudflare Workers AI را بررسی کن.' }, 502);
-  }
+  if (prompt.length < 3 || prompt.length > 1200) return jsonResp({ ok: false, error: 'توضیح تصویر باید بین ۳ تا ۱۲۰۰ نویسه باشد.' }, 400);
+  const selection = resolveSelection({
+    platform: body.platform || profile.platform,
+    model: body.model || profile.model,
+    persona: body.persona || profile.persona,
+    deep: body.deep != null ? body.deep : profile.deep
+  }, settings);
+  if (!isModelId(selection.model)) return jsonResp({ ok: false, error: 'مدل انتخاب‌شده معتبر نیست.' }, 400);
+  await log(env, 'warn', 'image request unsupported for selected model ' + selection.platform + '/' + selection.model);
+  return jsonResp({
+    ok: false,
+    error: 'مدل انتخاب‌شده (' + selection.model + ') در اتصال فعلی ArenaAi قابلیت تولید تصویر ندارد. برای جلوگیری از جایگزینی خودکار، تصویر با مدل دیگری ساخته نشد.'
+  }, 501);
 }
 
 /* ============================ project builder ============================ */
@@ -385,8 +378,6 @@ async function buildProject(request, env) {
   try { body = await request.json(); } catch { return jsonResp({ ok: false, error: 'درخواست نامعتبر است.' }, 400); }
   const prompt = sanitizeUserText(body.prompt || '');
   if (prompt.length < 8 || prompt.length > 7000) return jsonResp({ ok: false, error: 'شرح پروژه باید بین ۸ تا ۷۰۰۰ نویسه باشد.' }, 400);
-  const limited = await rateLimit(env, 'project:' + uid, 2, 3600);
-  if (!limited.ok) return jsonResp({ ok: false, error: 'سهمیه ساخت پروژه پر شده است؛ یک ساعت دیگر دوباره تلاش کن.' }, 429);
   const selection = resolveSelection({
     platform: body.platform || profile.platform, model: body.model || profile.model,
     persona: body.persona || profile.persona, deep: body.deep != null ? body.deep : profile.deep
