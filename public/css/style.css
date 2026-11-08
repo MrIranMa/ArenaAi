@@ -1116,3 +1116,20 @@ body::after {
   .c-row { gap: 7px; }
   #messageInput { font-size: 14px; }
 }
+
+
+/* ---------------- project builder workspace ---------------- */
+.project-modal-card { width: min(760px, calc(100vw - 28px)); max-height: min(88vh, 900px); overflow: auto; }
+.project-modal-card textarea { width: 100%; min-height: 150px; resize: vertical; }
+.project-results { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.project-result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.project-file-list { display: grid; gap: 7px; margin-top: 12px; max-height: 280px; overflow: auto; }
+.project-file-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface, rgba(127,127,127,.06)); }
+.project-file-row code { direction: ltr; text-align: left; overflow-wrap: anywhere; font-size: 12px; }
+.project-file-row .mini-btn { flex: 0 0 auto; }
+#btnBuildProject:disabled { opacity: .65; cursor: progress; }
+@media (max-width: 640px) {
+  .project-modal-card { width: calc(100vw - 16px); max-height: 92vh; }
+  .project-result-head { align-items: stretch; }
+  .project-result-head .btn { width: 100%; }
+}
